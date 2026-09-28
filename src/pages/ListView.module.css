@@ -1,0 +1,19 @@
+.heading {
+  margin: 32px 0 16px;
+  font-size: 2rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.status {
+  margin: 32px 0;
+}

@@ -1,0 +1,47 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rank {
+  width: 2.5em;
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.poster {
+  width: 46px;
+  height: 69px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: cover;
+  background: var(--surface);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+}
+
+.rating {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-h);
+}
