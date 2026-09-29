@@ -1,0 +1,76 @@
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chip,
+.clear {
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip {
+  color: var(--text-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.selected {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.clear {
+  color: var(--text);
+  background: none;
+  border: 1px solid transparent;
+  text-decoration: underline;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.segment {
+  font: inherit;
+  padding: 2px 12px;
+  border: none;
+  border-radius: 999px;
+  color: var(--text);
+  background: none;
+  cursor: pointer;
+}
+
+.segmentActive {
+  color: var(--bg);
+  background: var(--accent);
+}
+
+.chip:focus-visible,
+.clear:focus-visible,
+.segment:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -17,6 +17,13 @@ export function posterUrl(path: string, size: PosterSize): string {
   return `${IMAGE_BASE}/${size}${path}`
 }
 
+// Backdrops are wide stills (16:9), served in their own set of sizes
+export type BackdropSize = 'w300' | 'w780' | 'w1280' | 'original'
+
+export function backdropUrl(path: string, size: BackdropSize): string {
+  return `${IMAGE_BASE}/${size}${path}`
+}
+
 // TMDB returns 20 movies per page, so 25 pages is the ~500 movie subset
 // that the list view searches and sorts client-side.
 const TOP_RATED_PAGES = 25
