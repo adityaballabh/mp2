@@ -58,12 +58,22 @@ function ListView() {
     BATCH_SIZE,
   )
 
-  if (loading) return <p className={styles.status}>Loading…</p>
-  if (error) return <p className={styles.status}>Error: {error}</p>
+  if (loading)
+    return (
+      <main className={styles.page}>
+        <p className={styles.status}>Loading movies…</p>
+      </main>
+    )
+  if (error)
+    return (
+      <main className={styles.page}>
+        <p className={styles.status}>Couldn’t load movies: {error}</p>
+      </main>
+    )
 
   return (
-    <main>
-      <h1 className={styles.heading}>Top rated movies</h1>
+    <main className={styles.page}>
+      <h1 className={styles.heading}>Movies</h1>
       <ListControls
         query={query}
         sortKey={sortKey}

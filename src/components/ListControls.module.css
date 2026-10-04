@@ -2,40 +2,94 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 12px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
 }
 
 .search,
-.select,
 .order {
-  font: inherit;
-  color: var(--text-h);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 10px;
+  height: var(--control-height);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-radius: var(--radius-small);
+  transition:
+    border-color var(--duration-hover) var(--ease-out),
+    background-color var(--duration-hover) var(--ease-out),
+    transform var(--duration-press) var(--ease-out);
 }
 
-.search {
-  flex: 1 1 240px;
+/* Filled like the sort controls; the icon marks it as a search field */
+.searchWrap {
+  position: relative;
+  display: flex;
+  flex: 1 1 20rem;
   min-width: 0;
 }
 
-.search:focus-visible,
-.select:focus-visible,
-.order:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-2);
+  width: 1.1rem;
+  height: 1.1rem;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  pointer-events: none;
+  transition: stroke var(--duration-hover) var(--ease-out);
 }
 
-.sortLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.searchWrap:focus-within .searchIcon {
+  stroke: var(--color-text-dim);
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--space-2) 0 var(--space-4);
+}
+
+.search::placeholder {
+  color: var(--color-muted);
+}
+
+.search,
+.order {
+  border: 1px solid transparent;
 }
 
 .order {
   cursor: pointer;
-  min-width: 8.5em;
+}
+
+.search:hover,
+.order:hover {
+  background-color: var(--color-surface-raised);
+}
+
+.order:active {
+  transform: scale(0.97);
+}
+
+/* Clicking into the search box only firms up its edge; the bright ring is
+   for keyboard focus on buttons */
+.search:focus {
+  outline: none;
+  border-color: var(--color-muted);
+}
+
+.order:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.order {
+  min-width: 10rem;
+  padding: 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-control);
+  font-weight: 500;
 }

@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom'
 import { posterUrl } from '../api/tmdb'
 import type { Movie } from '../types/movie'
+import { usePrefetchOnView } from '../hooks/usePrefetchOnView'
 import { detailPath } from '../utils/detailNav'
 import type { DetailNavState } from '../utils/detailNav'
+import { preloadHeroImages } from '../utils/prefetch'
 import styles from './PosterCard.module.css'
-
-// Cards are narrow, so votes are shortened: 41304 -> "41K"
-const compactNumber = new Intl.NumberFormat('en-US', { notation: 'compact' })
 
 interface PosterCardProps {
   movie: Movie
@@ -14,11 +13,19 @@ interface PosterCardProps {
 }
 
 function PosterCard({ movie, navState }: PosterCardProps) {
-  const year = movie.release_date.slice(0, 4) || 'TBA'
+  // Same warm-up as MovieRow: details on view, hero images on hover or focus
+  const ref = usePrefetchOnView<HTMLAnchorElement>(movie.id)
 
   return (
     <li className={styles.card}>
-      <Link to={detailPath(movie.id)} state={navState} className={styles.link}>
+      <Link
+        ref={ref}
+        to={detailPath(movie.id)}
+        state={navState}
+        className={styles.link}
+        onPointerEnter={() => preloadHeroImages(movie)}
+        onFocus={() => preloadHeroImages(movie)}
+      >
         {movie.poster_path ? (
           <img
             className={styles.poster}
@@ -34,10 +41,6 @@ function PosterCard({ movie, navState }: PosterCardProps) {
           </div>
         )}
         <p className={styles.title}>{movie.title}</p>
-        <p className={styles.meta}>
-          {year} · ★ {movie.vote_average.toFixed(1)} ·{' '}
-          {compactNumber.format(movie.vote_count)} votes
-        </p>
       </Link>
     </li>
   )

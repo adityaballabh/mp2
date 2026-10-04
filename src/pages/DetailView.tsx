@@ -1,10 +1,16 @@
 import { useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { backdropUrl, getMovie, posterUrl } from '../api/tmdb'
 import { useMovieDetails } from '../hooks/useMovieDetails'
 import { useTopRatedMovies } from '../hooks/useTopRatedMovies'
 import type { MovieDetails } from '../types/movie'
 import { detailPath, isDetailNavState } from '../utils/detailNav'
+import {
+  HERO_BACKDROP_SIZE,
+  HERO_POSTER_SIZE,
+  preloadHeroImages,
+} from '../utils/prefetch'
 import styles from './DetailView.module.css'
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
@@ -56,10 +62,15 @@ function DetailView() {
     navigate(detailPath(targetId), { state: navState, replace: true })
   }
 
-  // Warm the cache for both neighbours so previous/next render instantly
+  // Warm both neighbours, details and hero images, so previous/next render
+  // instantly
   useEffect(() => {
     for (const neighborId of [prevId, nextId]) {
-      if (neighborId !== null) getMovie(neighborId).catch(() => {})
+      if (neighborId !== null) {
+        getMovie(neighborId)
+          .then(preloadHeroImages)
+          .catch(() => {})
+      }
     }
   }, [prevId, nextId])
 
@@ -91,15 +102,25 @@ function DetailView() {
 
   const backTo = navState?.backTo ?? '/'
   const backLabel = navState?.backLabel ?? 'List'
+  const backLink = (
+    <Link to={backTo} className={styles.back}>
+      ← Back to {backLabel}
+    </Link>
+  )
 
   return (
-    <main>
-      <nav className={styles.toolbar} aria-label="Movie navigation">
-        <Link to={backTo} className={styles.back}>
-          ← Back to {backLabel}
-        </Link>
+    <main className={styles.main}>
+      {/* The hero carries the back link once the movie is in; until then it
+          sits on its own at the top of the page */}
+      {movie ? (
+        <MovieHero movie={movie} backLink={backLink} />
+      ) : (
+        <div className={`${styles.page} ${styles.bareBack}`}>{backLink}</div>
+      )}
+
+      <div className={`${styles.page} ${styles.aboveGlow}`}>
         {hasNeighbors && prevId !== null && nextId !== null && (
-          <div className={styles.stepper}>
+          <nav className={styles.stepper} aria-label="Previous and next movie">
             <button
               type="button"
               className={styles.step}
@@ -119,23 +140,109 @@ function DetailView() {
             >
               <span className={styles.stepText}>Next </span>→
             </button>
-          </div>
+          </nav>
         )}
-      </nav>
 
-      {loading && <p className={styles.status}>Loading…</p>}
-      {notFound && <p className={styles.status}>Movie not found.</p>}
-      {error && <p className={styles.status}>Error: {error}</p>}
-      {movie && <MovieDetailsBody movie={movie} />}
+        {loading && <p className={styles.status}>Loading movie…</p>}
+        {notFound && <p className={styles.status}>Movie not found.</p>}
+        {error && (
+          <p className={styles.status}>Couldn’t load this movie: {error}</p>
+        )}
+        {movie && <MovieFacts movie={movie} />}
+      </div>
     </main>
   )
 }
 
-function MovieDetailsBody({ movie }: { movie: MovieDetails }) {
+// Backdrop under a scrim, with poster, title, year, tagline and rating on top
+function MovieHero({
+  movie,
+  backLink,
+}: {
+  movie: MovieDetails
+  backLink: ReactNode
+}) {
   const year = movie.release_date.slice(0, 4)
-  const studios = movie.production_companies.map((c) => c.name).join(', ')
+  const meta = [
+    year,
+    movie.runtime ? formatRuntime(movie.runtime) : '',
+    movie.genres.map((genre) => genre.name).join(', '),
+  ].filter(Boolean)
 
+  const backdrop = movie.backdrop_path
+    ? backdropUrl(movie.backdrop_path, HERO_BACKDROP_SIZE)
+    : null
+
+  return (
+    <>
+      {/* A faint blurred copy behind the hero that spills a little way down
+          the page. All copies share one URL, so there's one download. */}
+      {backdrop && (
+        <div className={styles.glow} aria-hidden="true">
+          <img className={styles.glowImage} src={backdrop} alt="" />
+        </div>
+      )}
+      <section
+        className={backdrop ? styles.hero : `${styles.hero} ${styles.plain}`}
+      >
+        {backdrop && (
+          <img className={styles.backdrop} src={backdrop} alt="" />
+        )}
+        <div className={`${styles.page} ${styles.heroInner}`}>
+          {backLink}
+          <div className={styles.heroBody}>
+            {movie.poster_path ? (
+              <img
+                className={styles.poster}
+                src={posterUrl(movie.poster_path, HERO_POSTER_SIZE)}
+                alt={`${movie.title} poster`}
+                width={500}
+                height={750}
+              />
+            ) : (
+              <div className={`${styles.poster} ${styles.missingPoster}`}>
+                No poster
+              </div>
+            )}
+            <div className={styles.heading}>
+              <p className={styles.meta}>{meta.join(' · ')}</p>
+              <h1 className={styles.title}>{movie.title}</h1>
+              {/* Always rendered, empty when there's no tagline, so stepping
+                  previous/next doesn't shift the title and rating */}
+              <p
+                className={styles.tagline}
+                aria-hidden={movie.tagline ? undefined : true}
+              >
+                {movie.tagline}
+              </p>
+              <p className={styles.score}>
+                <span className={styles.star} aria-hidden="true">
+                  ★
+                </span>
+                <span className={styles.rating}>
+                  {movie.vote_average.toFixed(1)}
+                </span>
+                <span className={styles.votes}>
+                  {movie.vote_count.toLocaleString('en-US')} votes
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+// Overview and the remaining facts, on the plain page below the hero
+function MovieFacts({ movie }: { movie: MovieDetails }) {
   const facts: [string, string][] = []
+  if (movie.directors.length > 0) {
+    facts.push(['Directed by', movie.directors.join(', ')])
+  }
+  if (movie.genres.length > 0) {
+    facts.push(['Genres', movie.genres.map((genre) => genre.name).join(', ')])
+  }
   if (movie.release_date) {
     facts.push(['Released', dateFormat.format(new Date(movie.release_date))])
   }
@@ -146,96 +253,43 @@ function MovieDetailsBody({ movie }: { movie: MovieDetails }) {
   if (movie.budget > 0) facts.push(['Budget', moneyFormat.format(movie.budget)])
   if (movie.revenue > 0)
     facts.push(['Box office', moneyFormat.format(movie.revenue)])
-  if (studios) facts.push(['Studios', studios])
 
   return (
-    <article className={styles.detail}>
-      {movie.backdrop_path && (
-        <img
-          className={styles.backdrop}
-          src={backdropUrl(movie.backdrop_path, 'w1280')}
-          alt=""
-        />
+    <div className={styles.details}>
+      <section className={styles.overviewSection}>
+        <h2 className={styles.sectionHeading}>Overview</h2>
+        <p className={styles.overview}>
+          {movie.overview || 'No overview available.'}
+        </p>
+      </section>
+
+      {(facts.length > 0 || movie.imdb_id) && (
+        <dl className={styles.facts}>
+          {facts.map(([label, value]) => (
+            <div key={label} className={styles.fact}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+          {/* Last row: a link out, laid out like the other facts */}
+          {movie.imdb_id && (
+            <div className={styles.fact}>
+              <dt>IMDb</dt>
+              <dd>
+                <a
+                  className={styles.factLink}
+                  href={`https://www.imdb.com/title/${movie.imdb_id}/`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View on IMDb ↗
+                </a>
+              </dd>
+            </div>
+          )}
+        </dl>
       )}
-      <div className={styles.body}>
-        {movie.poster_path ? (
-          <img
-            className={styles.poster}
-            src={posterUrl(movie.poster_path, 'w500')}
-            alt={`${movie.title} poster`}
-            width={500}
-            height={750}
-          />
-        ) : (
-          <div className={`${styles.poster} ${styles.missingPoster}`}>
-            No poster
-          </div>
-        )}
-        <div className={styles.info}>
-          <h1 className={styles.title}>
-            {movie.title}
-            {year && <span className={styles.year}> ({year})</span>}
-          </h1>
-          {movie.tagline && <p className={styles.tagline}>{movie.tagline}</p>}
-
-          <p className={styles.score}>
-            <span className={styles.rating}>
-              ★ {movie.vote_average.toFixed(1)}
-            </span>{' '}
-            <span className={styles.votes}>
-              from {movie.vote_count.toLocaleString('en-US')} votes
-            </span>
-          </p>
-
-          {movie.genres.length > 0 && (
-            <ul className={styles.genres} aria-label="Genres">
-              {movie.genres.map((genre) => (
-                <li key={genre.id} className={styles.genre}>
-                  {genre.name}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {movie.overview && (
-            <>
-              <h2 className={styles.sectionHeading}>Overview</h2>
-              <p className={styles.overview}>{movie.overview}</p>
-            </>
-          )}
-
-          {facts.length > 0 && (
-            <dl className={styles.facts}>
-              {facts.map(([label, value]) => (
-                <div key={label} className={styles.fact}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-
-          <p className={styles.links}>
-            <a
-              href={`https://www.themoviedb.org/movie/${movie.id}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              View on TMDB ↗
-            </a>
-            {movie.imdb_id && (
-              <a
-                href={`https://www.imdb.com/title/${movie.imdb_id}/`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                View on IMDb ↗
-              </a>
-            )}
-          </p>
-        </div>
-      </div>
-    </article>
+    </div>
   )
 }
 

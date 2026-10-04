@@ -1,29 +1,40 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-3);
+  padding: var(--space-2);
   color: inherit;
   text-decoration: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-large);
+  transition:
+    background-color var(--duration-hover) var(--ease-out);
 }
 
 .row:hover {
-  background: var(--surface);
+  background: var(--color-surface-raised);
+}
+
+.row:hover .title {
+  color: var(--color-accent);
 }
 
 .row:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
 }
 
 .poster {
-  width: 46px;
-  height: 69px;
+  width: 4rem;
+  height: 6rem;
   flex-shrink: 0;
-  border-radius: 4px;
   object-fit: cover;
-  background: var(--surface);
+  border-radius: var(--radius-small);
+}
+
+.missing {
+  background: var(--color-surface-raised);
 }
 
 .info {
@@ -33,15 +44,31 @@
 
 .title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.25rem;
+  line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color var(--duration-hover) var(--ease-out);
 }
 
 .meta {
-  margin: 2px 0 0;
-  font-size: 0.875rem;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.overview {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .score {
@@ -49,13 +76,25 @@
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
+  min-width: 6rem;
 }
 
 .rating {
-  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.star {
+  color: var(--color-accent);
 }
 
 .votes {
-  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--color-muted);
 }

@@ -1,24 +1,28 @@
+.page {
+  composes: page from '../styles/page.module.css';
+}
+
 .heading {
-  margin: 32px 0 16px;
-  font-size: 2rem;
-}
-
-.list {
-  list-style: none;
-  margin: 0 0 32px;
-  padding: 0;
-  border-top: 1px solid var(--border);
-}
-
-.sentinel {
-  height: 1px;
-}
-
-.status {
-  margin: 32px 0;
+  composes: heading from '../styles/page.module.css';
 }
 
 .count {
-  margin: 0 0 8px;
-  font-size: 0.875rem;
+  composes: count from '../styles/page.module.css';
+}
+
+.status {
+  composes: status from '../styles/page.module.css';
+}
+
+.sentinel {
+  composes: sentinel from '../styles/page.module.css';
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }

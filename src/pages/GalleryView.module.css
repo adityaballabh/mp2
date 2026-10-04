@@ -1,26 +1,37 @@
+.page {
+  composes: page from '../styles/page.module.css';
+}
+
 .heading {
-  margin: 32px 0 16px;
-  font-size: 2rem;
+  composes: heading from '../styles/page.module.css';
 }
 
 .count {
-  margin: 0 0 16px;
-  font-size: 0.875rem;
-}
-
-.grid {
-  list-style: none;
-  margin: 0 0 32px;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 24px 16px;
-}
-
-.sentinel {
-  height: 1px;
+  composes: count from '../styles/page.module.css';
 }
 
 .status {
-  margin: 32px 0;
+  composes: status from '../styles/page.module.css';
+}
+
+.sentinel {
+  composes: sentinel from '../styles/page.module.css';
+}
+
+/* Genres label, chips, then the match switch, straight on the page with no
+   panel. GenreFilter renders its rows directly into this flex box. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: var(--space-4) var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }

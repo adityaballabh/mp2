@@ -2,13 +2,11 @@ import { useMemo } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import GenreFilter from '../components/GenreFilter'
 import PosterCard from '../components/PosterCard'
-import YearRangeFilter from '../components/YearRangeFilter'
-import type { YearRange } from '../components/YearRangeFilter'
 import { useIncrementalReveal } from '../hooks/useIncrementalReveal'
 import { useTopRatedMovies } from '../hooks/useTopRatedMovies'
 import type { Genre } from '../types/movie'
 import type { DetailNavState } from '../utils/detailNav'
-import { filterByGenres, filterByYear, parseYear } from '../utils/movieQuery'
+import { filterByGenres } from '../utils/movieQuery'
 import type { GenreMatch } from '../utils/movieQuery'
 import styles from './GalleryView.module.css'
 
@@ -27,19 +25,11 @@ function parseGenreIds(value: string | null): number[] {
 function GalleryView() {
   const { movies, genres, loading, error } = useTopRatedMovies()
 
-  // Filters live in the URL (?genres=&match=&from=&to=), like the list
+  // Filters live in the URL (?genres=&match=), like the list
   // view's search and sort
   const [searchParams, setSearchParams] = useSearchParams()
   const selected = parseGenreIds(searchParams.get('genres'))
   const match: GenreMatch = searchParams.get('match') === 'any' ? 'any' : 'all'
-  let fromYear = parseYear(searchParams.get('from') ?? '')
-  let toYear = parseYear(searchParams.get('to') ?? '')
-  // The year boxes never apply a reversed range, but a hand-edited or old
-  // URL can hold one. Ignore it rather than filtering down to nothing.
-  if (fromYear !== null && toYear !== null && fromYear > toYear) {
-    fromYear = null
-    toYear = null
-  }
 
   function updateParam(name: string, value: string, fallback: string) {
     setSearchParams(
@@ -49,21 +39,6 @@ function GalleryView() {
         return params
       },
       // Replace, so filter tweaks don't pile up in the back history
-      { replace: true },
-    )
-  }
-
-  // Both ends in one URL update. The subset's own first/last year is the same
-  // as no bound, so those are left out of the URL.
-  function setYearRange(range: YearRange) {
-    setSearchParams(
-      (params) => {
-        if (range.from === minYear) params.delete('from')
-        else params.set('from', String(range.from))
-        if (range.to === maxYear) params.delete('to')
-        else params.set('to', String(range.to))
-        return params
-      },
       { replace: true },
     )
   }
@@ -90,24 +65,10 @@ function GalleryView() {
     return options.sort((a, b) => a.name.localeCompare(b.name))
   }, [movies, genres])
 
-  // Oldest and newest release years in the subset: what the year boxes show
-  // when that end of the range is open
-  const [minYear, maxYear] = useMemo(() => {
-    const years = movies
-      .filter((movie) => movie.release_date)
-      .map((movie) => Number(movie.release_date.slice(0, 4)))
-    return [Math.min(...years), Math.max(...years)]
-  }, [movies])
-
   const selectedKey = selected.join(',')
   const results = useMemo(
-    () =>
-      filterByYear(
-        filterByGenres(movies, parseGenreIds(selectedKey), match),
-        fromYear,
-        toYear,
-      ),
-    [movies, selectedKey, match, fromYear, toYear],
+    () => filterByGenres(movies, parseGenreIds(selectedKey), match),
+    [movies, selectedKey, match],
   )
 
   // Handed to the detail page so previous/next follow these exact results
@@ -123,35 +84,38 @@ function GalleryView() {
 
   const { visibleCount, sentinelRef, hasMore } = useIncrementalReveal(
     results.length,
-    `${selectedKey}|${match}|${fromYear}|${toYear}`,
+    `${selectedKey}|${match}`,
     BATCH_SIZE,
   )
 
-  if (loading) return <p className={styles.status}>Loading…</p>
-  if (error) return <p className={styles.status}>Error: {error}</p>
+  if (loading)
+    return (
+      <main className={styles.page}>
+        <p className={styles.status}>Loading movies…</p>
+      </main>
+    )
+  if (error)
+    return (
+      <main className={styles.page}>
+        <p className={styles.status}>Couldn’t load movies: {error}</p>
+      </main>
+    )
 
-  const filtered = selected.length > 0 || fromYear !== null || toYear !== null
-
-  return (
-    <main>
+    return (
+    <main className={styles.page}>
       <h1 className={styles.heading}>Gallery</h1>
-      <GenreFilter
-        genres={availableGenres}
-        selected={selected}
-        match={match}
-        onToggle={toggleGenre}
-        onClear={() => setSelected([])}
-        onMatchChange={(value) => updateParam('match', value, 'all')}
-      />
-      <YearRangeFilter
-        fromYear={fromYear}
-        toYear={toYear}
-        minYear={minYear}
-        maxYear={maxYear}
-        onChange={setYearRange}
-      />
+      <section className={styles.filters} aria-label="Filters">
+        <GenreFilter
+          genres={availableGenres}
+          selected={selected}
+          match={match}
+          onToggle={toggleGenre}
+          onClear={() => setSelected([])}
+          onMatchChange={(value) => updateParam('match', value, 'all')}
+        />
+      </section>
       <p className={styles.count} aria-live="polite">
-        {filtered
+        {selected.length > 0
           ? `${results.length} of ${movies.length} movies`
           : `${movies.length} movies`}
       </p>

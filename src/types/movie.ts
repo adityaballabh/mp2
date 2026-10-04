@@ -24,11 +24,6 @@ export interface Genre {
   name: string
 }
 
-export interface ProductionCompany {
-  id: number
-  name: string
-}
-
 // Full record from /movie/{id}. It has `genres` objects in place of the
 // list responses' `genre_ids`, plus fields the lists leave out. Only the
 // fields the detail view uses are declared.
@@ -40,5 +35,5 @@ export interface MovieDetails extends Omit<Movie, 'genre_ids'> {
   revenue: number // USD, 0 when unknown
   imdb_id: string | null
   original_title: string
-  production_companies: ProductionCompany[]
+  directors: string[] // names, picked out of the credits before caching
 }

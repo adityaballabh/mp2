@@ -24,10 +24,41 @@ function GenreFilter({
   onClear,
   onMatchChange,
 }: GenreFilterProps) {
+  // Three rows that GalleryView lays out: the label, the chips, then the
+  // All / Any switch with Clear
   return (
     <>
+      <div className={styles.header}>
+        <span id="genre-filter-label" className={styles.label}>
+          Genres
+        </span>
+      </div>
+      <div
+        className={styles.filter}
+        role="group"
+        aria-labelledby="genre-filter-label"
+      >
+        {genres.map((genre) => {
+          const isSelected = selected.includes(genre.id)
+          return (
+            <button
+              key={genre.id}
+              type="button"
+              className={
+                isSelected ? `${styles.chip} ${styles.selected}` : styles.chip
+              }
+              aria-pressed={isSelected}
+              onClick={() => onToggle(genre.id)}
+            >
+              {genre.name}
+            </button>
+          )
+        })}
+      </div>
       <div className={styles.match}>
-        <span id="genre-match-label">Match</span>
+        <span id="genre-match-label" className={styles.label}>
+          Match
+        </span>
         <div
           className={styles.segmented}
           role="group"
@@ -49,30 +80,19 @@ function GenreFilter({
             </button>
           ))}
         </div>
-        <span>selected genres</span>
-      </div>
-      <div className={styles.filter} role="group" aria-label="Filter by genre">
-        {genres.map((genre) => {
-          const isSelected = selected.includes(genre.id)
-          return (
-            <button
-              key={genre.id}
-              type="button"
-              className={
-                isSelected ? `${styles.chip} ${styles.selected}` : styles.chip
-              }
-              aria-pressed={isSelected}
-              onClick={() => onToggle(genre.id)}
-            >
-              {genre.name}
-            </button>
-          )
-        })}
-        {selected.length > 0 && (
-          <button type="button" className={styles.clear} onClick={onClear}>
-            Clear
-          </button>
-        )}
+        {/* Always rendered and only hidden, so it doesn't shift anything in
+            and out. visibility: hidden also drops it from the tab order. */}
+        <button
+          type="button"
+          className={
+            selected.length > 0
+              ? styles.clear
+              : `${styles.clear} ${styles.hidden}`
+          }
+          onClick={onClear}
+        >
+          Clear
+        </button>
       </div>
     </>
   )

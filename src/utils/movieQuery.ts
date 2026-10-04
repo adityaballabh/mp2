@@ -87,24 +87,3 @@ export function filterByGenres(
       : genreIds.some((id) => movie.genre_ids.includes(id)),
   )
 }
-
-// "1994" -> 1994. Anything but a complete 4-digit year (empty, still being
-// typed) is null, meaning that end of the range is open.
-export function parseYear(value: string): number | null {
-  return /^\d{4}$/.test(value) ? Number(value) : null
-}
-
-// Keeps movies released within [from, to], inclusive. A null bound is open.
-// Movies with no release date are dropped once either bound is set.
-export function filterByYear(
-  movies: Movie[],
-  from: number | null,
-  to: number | null,
-): Movie[] {
-  if (from === null && to === null) return movies
-  return movies.filter((movie) => {
-    if (!movie.release_date) return false
-    const year = Number(movie.release_date.slice(0, 4))
-    return (from === null || year >= from) && (to === null || year <= to)
-  })
-}

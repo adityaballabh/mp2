@@ -117,9 +117,25 @@ export async function getGenres(): Promise<Map<number, string>> {
   return new Map(genres.map((genre) => [genre.id, genre.name]))
 }
 
+// /movie/{id} as TMDB returns it with the credits appended
+interface MovieDetailsResponse extends Omit<MovieDetails, 'directors'> {
+  credits: { crew: { job: string; name: string }[] }
+}
+
+// The credits ride along on the same request, so the director costs no
+// extra call. Only the directors' names are kept: the full cast and crew
+// lists are large, and this result goes into sessionStorage. (The key
+// changed from `movie/` when directors were added, so entries cached
+// without them aren't reused.)
 export function getMovie(id: number): Promise<MovieDetails> {
-  return cached(`movie/${id}`, async () => {
-    const { data } = await tmdb.get<MovieDetails>(`/movie/${id}`)
-    return data
+  return cached(`movie-details/${id}`, async () => {
+    const { data } = await tmdb.get<MovieDetailsResponse>(`/movie/${id}`, {
+      params: { append_to_response: 'credits' },
+    })
+    const { credits, ...movie } = data
+    const directors = credits.crew
+      .filter((member) => member.job === 'Director')
+      .map((member) => member.name)
+    return { ...movie, directors }
   })
 }

@@ -1,46 +1,120 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --surface: #f7f6f9;
-  --border: #e5e4e7;
-  --accent: #aa3bff;
+  /* Three cool grounds. Contrast figures are on bg / surface / raised. */
+  --color-bg: #121318;
+  --color-surface: #1a1c23;
+  --color-surface-raised: #242733;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* Text */
+  --color-text: #ebe9ec; /* 15.4 / 14.1 / 12.3 */
+  --color-text-soft: #cfcdd4; /* 11.8 / 10.8 / 9.4 */
+  --color-text-dim: #b4b2bc; /* 8.9 / 8.1 / 7.1 */
+  --color-muted: #9c9aa5; /* 6.7 / 6.1 / 5.4 */
 
-  font: 16px/145% var(--sans);
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Velvet wine, the only accent. Never as text on the tint. */
+  --color-accent: #c97f8c; /* 6.1 / 5.6 / 4.9 */
+  --color-accent-tint: rgba(201, 127, 140, 0.14);
+  --color-accent-soft: rgba(201, 127, 140, 0.6); /* selected chip/segment border */
+  --color-field-border: #757888; /* 4.2 / 3.9 / 3.4, text inputs only */
+  --color-error: #f08a85; /* 7.7 / 7.0 / 6.1 */
+
+  /* Decorative only, never an input's only edge */
+  --color-line: #2c2f3a;
+
+  /* Translucent */
+  --color-nav-bg: rgba(18, 19, 24, 0.88);
+  --color-scrim-top: rgba(18, 19, 24, 0.35);
+  --color-scrim-bottom: rgba(18, 19, 24, 0.7);
+  --color-scrim-text-shadow: rgba(18, 19, 24, 0.75);
+  --color-scrim-side: rgba(18, 19, 24, 0.55); /* left edge of the hero */
+  --color-scrim-clear: rgba(18, 19, 24, 0);
+  --color-glass: rgba(18, 19, 24, 0.3); /* see-through button on images */
+  /* Alpha steps for fade-out masks; only the alpha matters */
+  --mask-100: rgba(0, 0, 0, 1);
+  --mask-85: rgba(0, 0, 0, 0.85);
+  --mask-60: rgba(0, 0, 0, 0.6);
+  --mask-35: rgba(0, 0, 0, 0.35);
+  --mask-15: rgba(0, 0, 0, 0.15);
+  --mask-4: rgba(0, 0, 0, 0.04);
+  --mask-0: rgba(0, 0, 0, 0);
+  --color-glass-hover: rgba(18, 19, 24, 0.5);
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-sans: 'Schibsted Grotesk', system-ui, sans-serif;
+  --text-label: 0.85rem; /* labels, meta, counts */
+  --text-control: 0.95rem; /* buttons, nav links */
+
+  /* Shape and spacing */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: 6rem;
+  --radius-small: 4px;
+  --radius-large: 8px;
+  --control-height: 2.75rem;
+  --page-width: 72rem;
+  --page-gutter: clamp(1rem, 5vw, 4rem);
+  --header-height: 4rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --duration-hover: 180ms;
+  --duration-press: 100ms;
+
+  color-scheme: dark;
+  /* No rubber-band bounce past the top or bottom, which would drag the
+     header and page edges along with it */
+  overscroll-behavior: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --surface: #1f2028;
-    --border: #2e303a;
-    --accent: #c084fc;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.8vw, 1.1rem);
+  line-height: 1.65;
+  color: var(--color-text-soft);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
-  width: 960px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 16px;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 h1,
-h2 {
-  font-weight: 600;
-  color: var(--text-h);
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+img {
+  max-width: 100%;
+}
+
+::selection {
+  color: var(--color-bg);
+  background: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
 }

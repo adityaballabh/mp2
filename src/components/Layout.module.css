@@ -1,42 +1,115 @@
+/* Fixed rather than sticky, so it never moves with the page; .content is
+   padded by the same height so nothing starts underneath it */
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--color-nav-bg);
+  backdrop-filter: blur(0.75rem);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-2);
+  width: min(100% - 2 * var(--page-gutter), var(--page-width));
+  margin: 0 auto;
+}
+
+.header .inner {
+  height: var(--header-height);
 }
 
 .brand {
-  font-weight: 700;
-  color: var(--text-h);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-accent);
 }
 
 .nav {
   display: flex;
-  gap: 4px;
+  gap: var(--space-3);
 }
 
 .navLink {
-  padding: 6px 12px;
-  border-radius: 6px;
-  color: var(--text);
+  padding: var(--space-1) 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-control);
+  font-weight: 500;
+  color: var(--color-text-dim);
   text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--duration-hover) var(--ease-out),
+    border-color var(--duration-hover) var(--ease-out);
 }
 
 .navLink:hover {
-  color: var(--text-h);
-  background: var(--surface);
+  color: var(--color-text);
 }
 
-.active {
-  color: var(--text-h);
-  background: var(--surface);
+.active,
+.active:hover {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.brand:focus-visible,
+.navLink:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-small);
+}
+
+.content {
+  flex: 1;
+  padding-top: var(--header-height);
 }
 
 .footer {
-  margin: 16px 0 32px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  font-size: 0.75rem;
+  margin-top: var(--space-5);
+  padding: var(--space-3) 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-line);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.footer .inner {
+  justify-content: flex-start;
+}
+
+/* Small, well under the 1.5rem wordmark, as TMDB's terms ask */
+.tmdb {
+  display: flex;
+  flex-shrink: 0;
+  border-radius: var(--radius-small);
+}
+
+.tmdb img {
+  display: block;
+  width: auto;
+  height: 0.75rem;
+}
+
+.tmdb:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.notice {
+  margin: 0;
 }

@@ -1,0 +1,130 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.anchor {
+  position: relative;
+}
+
+/* Same filled style as the direction button. Fixed width, so switching
+   between "Title" and "Release date" doesn't move the controls. */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  width: 10.5rem;
+  height: var(--control-height);
+  padding: 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-hover) var(--ease-out),
+    transform var(--duration-press) var(--ease-out);
+}
+
+.button:hover,
+.open {
+  background: var(--color-surface-raised);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--duration-hover) var(--ease-out);
+}
+
+.open .chevron {
+  transform: rotate(180deg);
+}
+
+.list {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 5;
+  min-width: 100%;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-large);
+  animation: drop 160ms var(--ease-out);
+}
+
+.list:focus {
+  outline: none;
+}
+
+/* Same left padding as the button, so labels line up with its text */
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  padding: 0 var(--space-2);
+  white-space: nowrap;
+  color: var(--color-text-soft);
+  cursor: pointer;
+}
+
+.option[aria-selected='true'] {
+  color: var(--color-text);
+}
+
+.active {
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+}
+
+.check {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}

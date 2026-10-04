@@ -1,5 +1,5 @@
-import { SORT_OPTIONS, isSortKey } from '../utils/movieQuery'
 import type { SortKey, SortOrder } from '../utils/movieQuery'
+import SortMenu from './SortMenu'
 import styles from './ListControls.module.css'
 
 interface ListControlsProps {
@@ -23,30 +23,26 @@ function ListControls({
 
   return (
     <div className={styles.controls}>
-      <input
-        className={styles.search}
-        type="search"
-        placeholder="Search titles…"
-        aria-label="Search titles"
-        value={query}
-        onChange={(event) => onQueryChange(event.target.value)}
-      />
-      <label className={styles.sortLabel}>
-        Sort by
-        <select
-          className={styles.select}
-          value={sortKey}
-          onChange={(event) => {
-            if (isSortKey(event.target.value)) onSortKeyChange(event.target.value)
-          }}
+      <span className={styles.searchWrap}>
+        <svg
+          className={styles.searchIcon}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
         >
-          {SORT_OPTIONS.map((option) => (
-            <option key={option.key} value={option.key}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-4-4" />
+        </svg>
+        <input
+          className={styles.search}
+          type="search"
+          placeholder="Search titles…"
+          aria-label="Search titles"
+          value={query}
+          onChange={(event) => onQueryChange(event.target.value)}
+        />
+      </span>
+      <SortMenu value={sortKey} onChange={onSortKeyChange} />
       <button
         className={styles.order}
         type="button"
