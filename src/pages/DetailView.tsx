@@ -49,7 +49,10 @@ function DetailView() {
   const { movies: topRated } = useTopRatedMovies()
   const ids = navState?.ids ?? topRated.map((m) => m.id)
   const index = id === null ? -1 : ids.indexOf(id)
-  const hasNeighbors = index !== -1 && ids.length > 1
+  // The row shows whenever this movie is in the list; with only one result
+  // the buttons stay visible but disabled, rather than the row vanishing
+  const inList = index !== -1
+  const hasNeighbors = inList && ids.length > 1
   // Wraps around at both ends
   const prevId = hasNeighbors
     ? ids[(index - 1 + ids.length) % ids.length]
@@ -119,12 +122,13 @@ function DetailView() {
       )}
 
       <div className={`${styles.page} ${styles.aboveGlow}`}>
-        {hasNeighbors && prevId !== null && nextId !== null && (
+        {inList && (
           <nav className={styles.stepper} aria-label="Previous and next movie">
             <button
               type="button"
               className={styles.step}
-              onClick={() => goTo(prevId)}
+              onClick={() => prevId !== null && goTo(prevId)}
+              disabled={prevId === null}
               aria-label="Previous movie"
             >
               ←<span className={styles.stepText}> Previous</span>
@@ -135,7 +139,8 @@ function DetailView() {
             <button
               type="button"
               className={styles.step}
-              onClick={() => goTo(nextId)}
+              onClick={() => nextId !== null && goTo(nextId)}
+              disabled={nextId === null}
               aria-label="Next movie"
             >
               <span className={styles.stepText}>Next </span>→
@@ -230,6 +235,7 @@ function MovieHero({
           </div>
         </div>
       </section>
+      {backdrop && <div className={styles.grain} aria-hidden="true" />}
     </>
   )
 }

@@ -13,27 +13,47 @@
 .main {
   position: relative;
   --hero-height: clamp(26rem, 62vh, 38rem);
+  /* The backdrop and the glow both fade out over this distance */
+  --fade-distance: 18rem;
+  /* How far the glow runs past the hero */
+  --glow-spill: 14rem;
 }
 
-/* Solid through the hero, then fades out below it. Only the alpha of the
-   mask matters. */
+/* An element that's solid down to its last --fade-distance, then eases out
+   along the cosine curve. Two mask layers: solid on top, the eased fade
+   pinned to the bottom (overlapping by 1px so no hairline shows between
+   them). The -webkit- copies are for Safari before 15.4. */
+.glow,
+.backdrop,
+.hero::after {
+  -webkit-mask-image: var(--mask-solid), var(--mask-fade-out);
+  mask-image: var(--mask-solid), var(--mask-fade-out);
+  -webkit-mask-size:
+    100% calc(100% - var(--fade-distance) + 1px),
+    100% var(--fade-distance);
+  mask-size:
+    100% calc(100% - var(--fade-distance) + 1px),
+    100% var(--fade-distance);
+  -webkit-mask-position:
+    0 0,
+    0 100%;
+  mask-position:
+    0 0,
+    0 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* Spans the hero plus the spill, so it fades from just above the hero's
+   bottom to --glow-spill below it */
 .glow {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: calc(var(--hero-height) + 16rem);
+  height: calc(var(--hero-height) + var(--glow-spill));
   overflow: hidden;
   pointer-events: none;
-  --fade: linear-gradient(
-    to bottom,
-    var(--mask-100) calc(var(--hero-height) - 4rem),
-    var(--mask-60) calc(var(--hero-height) + 3rem),
-    var(--mask-15) calc(var(--hero-height) + 10rem),
-    var(--mask-0)
-  );
-  -webkit-mask-image: var(--fade);
-  mask-image: var(--fade);
 }
 
 /* Well past the page's edges on every side, so after the blur the colour
@@ -47,8 +67,8 @@
   max-width: none;
   height: 160%;
   object-fit: cover;
-  filter: blur(5rem) saturate(1.1);
-  opacity: 0.3;
+  filter: blur(5rem) saturate(1.4);
+  opacity: 0.45;
 }
 
 .hero {
@@ -60,25 +80,6 @@
 .plain {
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-line);
-}
-
-/* The backdrop and its wash fade out by the hero's bottom edge along an
-   S-curve, so at the edge only the glow is left, and it carries on down
-   the page. The -webkit- copy is for Safari before 15.4. */
-.backdrop,
-.hero::after {
-  --fade: linear-gradient(
-    to bottom,
-    var(--mask-100) 35%,
-    var(--mask-85) 48%,
-    var(--mask-60) 60%,
-    var(--mask-35) 71%,
-    var(--mask-15) 82%,
-    var(--mask-4) 92%,
-    var(--mask-0)
-  );
-  -webkit-mask-image: var(--fade);
-  mask-image: var(--fade);
 }
 
 .backdrop {
@@ -107,6 +108,36 @@
       var(--color-scrim-top),
       var(--color-scrim-bottom)
     );
+}
+
+/* Faint grain over both fades, dithering away any leftover banding. Overlay
+   blending keeps the average brightness unchanged. Fades in and out at its
+   own edges so it never shows a line. Sits above the hero's images but
+   below its text, like the page content. */
+.grain {
+  position: absolute;
+  top: calc(var(--hero-height) - var(--fade-distance));
+  left: 0;
+  right: 0;
+  height: calc(var(--fade-distance) + var(--glow-spill));
+  pointer-events: none;
+  background-image: var(--texture-grain);
+  mix-blend-mode: overlay;
+  opacity: 0.08;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    var(--mask-0),
+    var(--mask-100) 25%,
+    var(--mask-100) 60%,
+    var(--mask-0)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    var(--mask-0),
+    var(--mask-100) 25%,
+    var(--mask-100) 60%,
+    var(--mask-0)
+  );
 }
 
 /* Page content below the hero sits above the glow */
@@ -263,7 +294,8 @@
   font-weight: 500;
   color: var(--color-text);
   background: var(--color-surface);
-  border: 1px solid transparent;
+  /* Faint edge so the shape holds up over the tinted glow */
+  border: 1px solid var(--color-line-soft);
   border-radius: var(--radius-small);
   cursor: pointer;
   transition:
@@ -271,12 +303,18 @@
     transform var(--duration-press) var(--ease-out);
 }
 
-.step:hover {
+.step:hover:enabled {
   background: var(--color-surface-raised);
 }
 
-.step:active {
+.step:active:enabled {
   transform: scale(0.97);
+}
+
+/* Only one result: still there, but clearly inactive */
+.step:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
 }
 
 .position {

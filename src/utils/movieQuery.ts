@@ -14,23 +14,22 @@ export function isSortKey(value: string | null): value is SortKey {
   return SORT_OPTIONS.some((option) => option.key === value)
 }
 
-// Lowercase and strip accents, so "amelie" matches "Amélie".
+// Strips accents, then everything that isn't a letter or digit (spaces and
+// punctuation included), and lowercases. Applied to both title and query,
+// so "amelie" matches "Amélie", "spiderman" matches "Spider-Man", and
+// "wall e" matches "WALL·E".
 function normalize(text: string): string {
-  return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-}
-
-// Collapses runs of whitespace and trims, so "  the   lord " searches for
-// "the lord".
-function collapseSpaces(text: string): string {
-  return text.trim().replace(/\s+/g, ' ')
+  return text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^\p{L}\p{N}]/gu, '')
+    .toLowerCase()
 }
 
 export function filterByTitle(movies: Movie[], query: string): Movie[] {
-  const needle = normalize(collapseSpaces(query))
+  const needle = normalize(query)
   if (!needle) return movies
-  return movies.filter((movie) =>
-    normalize(collapseSpaces(movie.title)).includes(needle),
-  )
+  return movies.filter((movie) => normalize(movie.title).includes(needle))
 }
 
 // ignorePunctuation: "¿Quieres…" sorts under Q, not ahead of every letter

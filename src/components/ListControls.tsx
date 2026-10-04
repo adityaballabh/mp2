@@ -36,7 +36,7 @@ function ListControls({
         <input
           className={styles.search}
           type="search"
-          placeholder="Search titles…"
+          placeholder="Search titles"
           aria-label="Search titles"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
