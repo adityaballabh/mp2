@@ -134,7 +134,7 @@ function DetailView() {
               ←<span className={styles.stepText}> Previous</span>
             </button>
             <span className={styles.position}>
-              {index + 1} / {ids.length}
+              {index + 1} of {ids.length}
             </span>
             <button
               type="button"
@@ -180,8 +180,8 @@ function MovieHero({
 
   return (
     <>
-      {/* A faint blurred copy behind the hero that spills a little way down
-          the page. All copies share one URL, so there's one download. */}
+      {/* A blurred copy behind the hero that runs down the page to the
+          footer. Both copies share one URL, so there's one download. */}
       {backdrop && (
         <div className={styles.glow} aria-hidden="true">
           <img className={styles.glowImage} src={backdrop} alt="" />
@@ -246,11 +246,11 @@ function MovieFacts({ movie }: { movie: MovieDetails }) {
   if (movie.directors.length > 0) {
     facts.push(['Directed by', movie.directors.join(', ')])
   }
-  if (movie.genres.length > 0) {
-    facts.push(['Genres', movie.genres.map((genre) => genre.name).join(', ')])
-  }
   if (movie.release_date) {
     facts.push(['Released', dateFormat.format(new Date(movie.release_date))])
+  }
+  if (movie.genres.length > 0) {
+    facts.push(['Genres', movie.genres.map((genre) => genre.name).join(', ')])
   }
   if (movie.runtime) facts.push(['Runtime', formatRuntime(movie.runtime)])
   if (movie.original_title !== movie.title) {

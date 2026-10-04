@@ -7,16 +7,23 @@
 }
 
 /* Hero: full-width backdrop under the scrim, text only ever on the scrim.
-   A faint glow of the backdrop's colours sits behind it and spills a little
-   way down the page. */
+   A glow of the backdrop's colours sits behind it and runs down the page
+   to the footer. */
 
 .main {
   position: relative;
+  /* On short pages the glow would run past the footer and make the page
+     taller; clip cuts it off here without making a scroll container */
+  overflow: clip;
+  /* Reach over the footer's top margin, so the glow runs right up to the
+     footer instead of leaving a plain dark band above it */
+  margin-bottom: calc(-1 * var(--space-5));
+  padding-bottom: var(--space-5);
   --hero-height: clamp(26rem, 62vh, 38rem);
-  /* The backdrop and the glow both fade out over this distance */
-  --fade-distance: 18rem;
-  /* How far the glow runs past the hero */
-  --glow-spill: 14rem;
+  /* The backdrop fades out over this distance */
+  --fade-distance: 22rem;
+  /* The glow keeps its full colour down to the footer's edge */
+  --glow-fade: 0rem;
 }
 
 /* An element that's solid down to its last --fade-distance, then eases out
@@ -44,14 +51,12 @@
   mask-repeat: no-repeat;
 }
 
-/* Spans the hero plus the spill, so it fades from just above the hero's
-   bottom to --glow-spill below it */
+/* Runs the full height of the page content, so the colour carries all the
+   way down to the footer (fading over --glow-fade, currently none) */
 .glow {
+  --fade-distance: var(--glow-fade);
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: calc(var(--hero-height) + var(--glow-spill));
+  inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
@@ -68,7 +73,7 @@
   height: 160%;
   object-fit: cover;
   filter: blur(5rem) saturate(1.4);
-  opacity: 0.45;
+  opacity: 0.5;
 }
 
 .hero {
@@ -117,9 +122,9 @@
 .grain {
   position: absolute;
   top: calc(var(--hero-height) - var(--fade-distance));
-  left: 0;
   right: 0;
-  height: calc(var(--fade-distance) + var(--glow-spill));
+  bottom: 0;
+  left: 0;
   pointer-events: none;
   background-image: var(--texture-grain);
   mix-blend-mode: overlay;
@@ -293,7 +298,9 @@
   font-size: var(--text-control);
   font-weight: 500;
   color: var(--color-text);
-  background: var(--color-surface);
+  /* Same see-through dark as the back link and footer */
+  background: var(--color-glass);
+  backdrop-filter: blur(0.5rem);
   /* Faint edge so the shape holds up over the tinted glow */
   border: 1px solid var(--color-line-soft);
   border-radius: var(--radius-small);
@@ -304,7 +311,7 @@
 }
 
 .step:hover:enabled {
-  background: var(--color-surface-raised);
+  background: var(--color-glass-hover);
 }
 
 .step:active:enabled {
@@ -317,8 +324,9 @@
   cursor: not-allowed;
 }
 
+/* In the title font, like the rating, since it's a number that matters */
 .position {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-size: var(--text-label);
   font-weight: 500;
   color: var(--color-muted);
@@ -329,7 +337,8 @@
 
 .details {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+  /* Wider facts column, so its two columns have room */
+  grid-template-columns: minmax(0, 3fr) minmax(20rem, 2fr);
   align-items: start;
   /* Wide column gap: with no divider, space separates the facts */
   gap: var(--space-4) var(--space-6);
@@ -348,10 +357,11 @@
   color: var(--color-text-soft);
 }
 
-/* On the page ground; pairs are spaced wider than key to value */
+/* Pairs in two side-by-side columns, label above value; rows are spaced
+   wider than key to value */
 .facts {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
   margin: 0;
 }

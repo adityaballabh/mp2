@@ -19,7 +19,7 @@
 
   /* Decorative only, never an input's only edge */
   --color-line: #2c2f3a;
-  --color-line-soft: rgba(44, 47, 58, 0.5); /* half-strength line, button edges */
+  --color-line-soft: rgba(44, 47, 58, 0.75); /* softer line, button edges */
 
   /* Translucent */
   --color-nav-bg: rgba(18, 19, 24, 0.88);
