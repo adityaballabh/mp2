@@ -1,0 +1,185 @@
+.page {
+  composes: page from '../styles/page.module.css';
+}
+
+/* Solid, then a cosine fade, overlapping 1px to hide a seam */
+.backdrop,
+.hero::after {
+  -webkit-mask-image: var(--mask-solid), var(--mask-fade-out);
+  mask-image: var(--mask-solid), var(--mask-fade-out);
+  -webkit-mask-size:
+    100% calc(100% - var(--fade-distance) + 1px),
+    100% var(--fade-distance);
+  mask-size:
+    100% calc(100% - var(--fade-distance) + 1px),
+    100% var(--fade-distance);
+  -webkit-mask-position:
+    0 0,
+    0 100%;
+  mask-position:
+    0 0,
+    0 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Oversized so the blur doesn't soften the edges */
+.glowImage {
+  position: absolute;
+  inset: -30%;
+  width: 160%;
+  /* Override the global img max-width, which would shift the glow left */
+  max-width: none;
+  height: 160%;
+  object-fit: cover;
+  filter: blur(5rem) saturate(1.4);
+  opacity: 0.5;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  --hero-height: clamp(26rem, 62vh, 38rem);
+  --fade-distance: 22rem;
+}
+
+.plain {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+/* Dark wash from the left so text reads on any backdrop */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      var(--color-scrim-side),
+      var(--color-scrim-clear) 60%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--color-scrim-top),
+      var(--color-scrim-bottom)
+    );
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: var(--hero-height);
+  padding: var(--space-3) 0 var(--space-4);
+}
+
+.heroBody {
+  display: grid;
+  grid-template-columns: clamp(9rem, 18vw, 15rem) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-4);
+  margin-top: auto;
+}
+
+.poster {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-large);
+}
+
+.missingPoster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  color: var(--color-text-dim);
+}
+
+.heading {
+  min-width: 0;
+  text-shadow: 0 1px 0.75rem var(--color-scrim-text-shadow);
+}
+
+.meta {
+  composes: labelSoft from '../styles/text.module.css';
+  margin: 0;
+}
+
+.title {
+  composes: rise from '../styles/page.module.css';
+  margin: var(--space-1) 0 0;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  margin: var(--space-2) 0 0;
+  max-width: 50ch;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: var(--leading-body);
+  /* Hold one line even when empty */
+  min-height: 1.5em;
+  color: var(--color-text-soft);
+}
+
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: var(--color-accent);
+}
+
+.rating {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.votes {
+  composes: labelSoft from '../styles/text.module.css';
+  margin-left: var(--space-1);
+}
+
+@media (max-width: 40rem) {
+  .heroBody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .poster {
+    width: 9rem;
+  }
+}

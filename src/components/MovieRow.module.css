@@ -8,8 +8,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-large);
-  transition:
-    background-color var(--duration-hover) var(--ease-out);
+  transition: background-color var(--duration-hover) var(--ease-out);
 }
 
 .row:hover {
@@ -21,8 +20,8 @@
 }
 
 .row:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 .poster {
@@ -53,18 +52,15 @@
 }
 
 .meta {
+  composes: label from '../styles/text.module.css';
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--color-muted);
+  line-height: var(--leading-body);
 }
 
 .overview {
   margin: 0;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: var(--leading-body);
   color: var(--color-text-soft);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -93,8 +89,5 @@
 }
 
 .votes {
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-muted);
+  composes: label from '../styles/text.module.css';
 }

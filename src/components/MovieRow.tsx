@@ -1,10 +1,8 @@
-import { Link } from 'react-router-dom'
+import clsx from 'clsx'
 import { posterUrl } from '../api/tmdb'
 import type { Movie } from '../types/movie'
-import { usePrefetchOnView } from '../hooks/usePrefetchOnView'
-import { detailPath } from '../utils/detailNav'
 import type { DetailNavState } from '../utils/detailNav'
-import { preloadHeroImages } from '../utils/prefetch'
+import MovieLink from './MovieLink'
 import styles from './MovieRow.module.css'
 
 interface MovieRowProps {
@@ -14,9 +12,6 @@ interface MovieRowProps {
 }
 
 function MovieRow({ movie, genres, navState }: MovieRowProps) {
-  // Details are fetched once the row has been on screen briefly, and the
-  // hero images once it's hovered or focused, so opening it is instant
-  const ref = usePrefetchOnView<HTMLAnchorElement>(movie.id)
   const year = movie.release_date.slice(0, 4) || 'TBA'
   const genreNames = movie.genre_ids
     .map((id) => genres.get(id))
@@ -24,14 +19,7 @@ function MovieRow({ movie, genres, navState }: MovieRowProps) {
 
   return (
     <li>
-      <Link
-        ref={ref}
-        to={detailPath(movie.id)}
-        state={navState}
-        className={styles.row}
-        onPointerEnter={() => preloadHeroImages(movie)}
-        onFocus={() => preloadHeroImages(movie)}
-      >
+      <MovieLink movie={movie} navState={navState} className={styles.row}>
         {movie.poster_path ? (
           <img
             className={styles.poster}
@@ -42,7 +30,7 @@ function MovieRow({ movie, genres, navState }: MovieRowProps) {
             height={96}
           />
         ) : (
-          <div className={`${styles.poster} ${styles.missing}`} />
+          <div className={clsx(styles.poster, styles.missing)} />
         )}
         <div className={styles.info}>
           <h2 className={styles.title}>{movie.title}</h2>
@@ -64,7 +52,7 @@ function MovieRow({ movie, genres, navState }: MovieRowProps) {
             {movie.vote_count.toLocaleString('en-US')} votes
           </span>
         </div>
-      </Link>
+      </MovieLink>
     </li>
   )
 }

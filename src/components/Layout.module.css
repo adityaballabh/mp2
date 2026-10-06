@@ -1,5 +1,4 @@
-/* Fixed rather than sticky, so it never moves with the page; .content is
-   padded by the same height so nothing starts underneath it */
+/* Fixed so it never moves with the page, .content is padded by its height */
 .header {
   position: fixed;
   top: 0;
@@ -67,8 +66,8 @@
 
 .brand:focus-visible,
 .navLink:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
   border-radius: var(--radius-small);
 }
 
@@ -80,12 +79,11 @@
 .footer {
   margin-top: var(--space-5);
   padding: var(--space-3) 0;
-  /* Same see-through dark as the detail page's back link */
   background: var(--color-glass);
-  backdrop-filter: blur(0.5rem);
+  backdrop-filter: blur(var(--blur-glass));
   font-family: var(--font-sans);
   font-size: var(--text-label);
-  line-height: 1.5;
+  line-height: var(--leading-body);
   color: var(--color-muted);
 }
 
@@ -93,7 +91,7 @@
   justify-content: flex-start;
 }
 
-/* Small, well under the 1.5rem wordmark, as TMDB's terms ask */
+/* Smaller than the wordmark, as TMDB's terms ask */
 .tmdb {
   display: flex;
   flex-shrink: 0;
@@ -107,8 +105,8 @@
 }
 
 .tmdb:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 .notice {

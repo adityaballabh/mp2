@@ -1,0 +1,61 @@
+.details {
+  display: grid;
+  /* Keep the facts column at least 20rem so its two columns fit */
+  grid-template-columns: minmax(0, 3fr) minmax(20rem, 2fr);
+  align-items: start;
+  /* Wide gap stands in for a divider */
+  gap: var(--space-4) var(--space-6);
+  margin-top: var(--space-4);
+}
+
+.sectionHeading {
+  margin: 0 0 var(--space-2);
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.overview {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--color-text-soft);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.factLabel {
+  composes: label from '../styles/text.module.css';
+}
+
+.fact dd {
+  margin: 0;
+  line-height: var(--leading-body);
+  color: var(--color-text-soft);
+}
+
+.factLink {
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-underline-offset: 0.25em;
+}
+
+.factLink:hover {
+  color: var(--color-text);
+}
+
+.factLink:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-small);
+}
+
+@media (max-width: 52rem) {
+  .details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,13 +1,13 @@
-// Carried in router location state when opening a movie, so the detail
-// page's previous/next buttons walk the exact list the user clicked from
-// (with its search, sort and filters) and "Back" returns to it.
+// Lets the detail page step through and return to the list it was opened from
 export interface DetailNavState {
-  ids: number[] // movie ids in the order they were shown
-  backTo: string // path + query of the list or gallery
-  backLabel: string // e.g. "List"
+  // In the order they were shown
+  ids: number[]
+  // Path and query of the list or gallery
+  backTo: string
+  backLabel: string
 }
 
-// Location state is untyped (and survives reloads), so check its shape
+// Location state is untyped and survives reloads, so check its shape
 export function isDetailNavState(value: unknown): value is DetailNavState {
   if (typeof value !== 'object' || value === null) return false
   const state = value as Record<string, unknown>

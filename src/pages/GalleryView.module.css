@@ -18,8 +18,7 @@
   composes: sentinel from '../styles/page.module.css';
 }
 
-/* Genres label, chips, then the match switch, straight on the page with no
-   panel. GenreFilter renders its rows directly into this flex box. */
+/* GenreFilter renders its rows straight into this flex box */
 .filters {
   display: flex;
   flex-wrap: wrap;

@@ -10,31 +10,24 @@ export const tmdb = axios.create({
 
 const IMAGE_BASE = 'https://image.tmdb.org/t/p'
 
-// Sizes TMDB serves for posters (widths in px, or the original upload).
-export type PosterSize = 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'original'
+export type PosterSize =
+  'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'original'
 
 export function posterUrl(path: string, size: PosterSize): string {
   return `${IMAGE_BASE}/${size}${path}`
 }
 
-// Backdrops are wide stills (16:9), served in their own set of sizes
 export type BackdropSize = 'w300' | 'w780' | 'w1280' | 'original'
 
 export function backdropUrl(path: string, size: BackdropSize): string {
   return `${IMAGE_BASE}/${size}${path}`
 }
 
-// TMDB returns 20 movies per page, so 25 pages is the ~500 movie subset
-// that the list view searches and sorts client-side.
+// 20 movies per page, so 25 pages gives the ~500 movie subset
 const TOP_RATED_PAGES = 25
 
-// Two cache layers, both keyed by request:
-// - memory: holds the promise, so concurrent callers share one request
-// - sessionStorage: holds the resolved JSON, so a page refresh in the same tab
-//   skips the network. It is cleared when the tab closes.
-// A failed request is dropped from memory and never stored, so the next call
-// retries. Cached values must be JSON-serializable.
-const memory = new Map<string, Promise<unknown>>()
+// Memory shares in-flight requests, sessionStorage survives a refresh
+const memoryCache = new Map<string, Promise<unknown>>()
 const STORAGE_PREFIX = 'tmdb:'
 
 function readStored<T>(key: string): T | undefined {
@@ -42,7 +35,8 @@ function readStored<T>(key: string): T | undefined {
     const raw = sessionStorage.getItem(STORAGE_PREFIX + key)
     return raw === null ? undefined : (JSON.parse(raw) as T)
   } catch {
-    return undefined // storage blocked or entry corrupted: refetch
+    // Storage blocked or entry corrupted, so refetch
+    return undefined
   }
 }
 
@@ -50,12 +44,12 @@ function writeStored(key: string, value: unknown): void {
   try {
     sessionStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value))
   } catch {
-    // Storage full or blocked: the memory cache still covers this page load
+    // Storage full or blocked, the memory cache still covers this page load
   }
 }
 
 function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
-  let entry = memory.get(key) as Promise<T> | undefined
+  let entry = memoryCache.get(key) as Promise<T> | undefined
   if (entry) return entry
 
   const stored = readStored<T>(key)
@@ -70,12 +64,12 @@ function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
         return value
       },
       (err: unknown) => {
-        memory.delete(key)
+        memoryCache.delete(key)
         throw err
       },
     )
   }
-  memory.set(key, entry)
+  memoryCache.set(key, entry)
   return entry
 }
 
@@ -87,8 +81,7 @@ async function loadTopRatedMovies(): Promise<Movie[]> {
     ),
   )
 
-  // Rankings can shift between page requests, so the same movie can show up
-  // on two pages. Keep the first occurrence.
+  // Rankings can shift between page requests, so skip movies already seen
   const seen = new Set<number>()
   const movies: Movie[] = []
   for (const { data } of responses) {
@@ -106,9 +99,7 @@ export function getTopRatedMovies(): Promise<Movie[]> {
   return cached('top_rated', loadTopRatedMovies)
 }
 
-// Genre id -> name, for turning a list movie's `genre_ids` into labels.
-// The cache stores the plain array (a Map can't go through JSON), and the
-// lookup is built from it on each call.
+// Cache the plain array since a Map can't go through JSON
 export async function getGenres(): Promise<Map<number, string>> {
   const genres = await cached('genres', async () => {
     const { data } = await tmdb.get<{ genres: Genre[] }>('/genre/movie/list')
@@ -117,16 +108,11 @@ export async function getGenres(): Promise<Map<number, string>> {
   return new Map(genres.map((genre) => [genre.id, genre.name]))
 }
 
-// /movie/{id} as TMDB returns it with the credits appended
 interface MovieDetailsResponse extends Omit<MovieDetails, 'directors'> {
   credits: { crew: { job: string; name: string }[] }
 }
 
-// The credits ride along on the same request, so the director costs no
-// extra call. Only the directors' names are kept: the full cast and crew
-// lists are large, and this result goes into sessionStorage. (The key
-// changed from `movie/` when directors were added, so entries cached
-// without them aren't reused.)
+// Keep only the director names so the cached entry stays small
 export function getMovie(id: number): Promise<MovieDetails> {
   return cached(`movie-details/${id}`, async () => {
     const { data } = await tmdb.get<MovieDetailsResponse>(`/movie/${id}`, {

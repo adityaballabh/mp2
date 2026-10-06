@@ -19,7 +19,6 @@
     transform var(--duration-press) var(--ease-out);
 }
 
-/* Filled like the sort controls; the icon marks it as a search field */
 .searchWrap {
   position: relative;
   display: flex;
@@ -71,19 +70,18 @@
 }
 
 .order:active {
-  transform: scale(0.97);
+  transform: scale(var(--press-scale));
 }
 
-/* Clicking into the search box only firms up its edge; the bright ring is
-   for keyboard focus on buttons */
+/* Focus only brightens the border, the accent ring is for keyboard focus */
 .search:focus {
   outline: none;
   border-color: var(--color-muted);
 }
 
 .order:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 .order {

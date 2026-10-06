@@ -14,10 +14,7 @@ export function isSortKey(value: string | null): value is SortKey {
   return SORT_OPTIONS.some((option) => option.key === value)
 }
 
-// Strips accents, then everything that isn't a letter or digit (spaces and
-// punctuation included), and lowercases. Applied to both title and query,
-// so "amelie" matches "Amélie", "spiderman" matches "Spider-Man", and
-// "wall e" matches "WALL·E".
+// Drop accents, spaces and punctuation so "spiderman" matches "Spider-Man"
 function normalize(text: string): string {
   return text
     .normalize('NFD')
@@ -32,7 +29,6 @@ export function filterByTitle(movies: Movie[], query: string): Movie[] {
   return movies.filter((movie) => normalize(movie.title).includes(needle))
 }
 
-// ignorePunctuation: "¿Quieres…" sorts under Q, not ahead of every letter
 const titleCollator = new Intl.Collator('en', {
   sensitivity: 'base',
   numeric: true,
@@ -48,32 +44,30 @@ function compareBy(key: SortKey, a: Movie, b: Movie): number {
     case 'title':
       return titleCollator.compare(a.title, b.title)
     case 'release':
-      // "YYYY-MM-DD" strings sort chronologically as plain strings
+      // ISO dates sort chronologically as strings
       return a.release_date.localeCompare(b.release_date)
   }
 }
 
-// Returns a new array. `order` flips only the chosen property: ties keep
-// their top-rated order, and movies with no release date always go last.
-export function sortMovies(movies: Movie[], key: SortKey, order: SortOrder): Movie[] {
+// Stable, so ties keep top-rated order, and undated movies always go last
+export function sortMovies(
+  movies: Movie[],
+  key: SortKey,
+  order: SortOrder,
+): Movie[] {
   const direction = order === 'asc' ? 1 : -1
-  return movies
-    .map((movie, index) => ({ movie, index }))
-    .sort((a, b) => {
-      if (key === 'release') {
-        const missingA = a.movie.release_date === ''
-        const missingB = b.movie.release_date === ''
-        if (missingA !== missingB) return missingA ? 1 : -1
-      }
-      return direction * compareBy(key, a.movie, b.movie) || a.index - b.index
-    })
-    .map(({ movie }) => movie)
+  return movies.toSorted((a, b) => {
+    if (key === 'release') {
+      const missingA = a.release_date === ''
+      const missingB = b.release_date === ''
+      if (missingA !== missingB) return missingA ? 1 : -1
+    }
+    return direction * compareBy(key, a, b)
+  })
 }
 
 export type GenreMatch = 'all' | 'any'
 
-// 'all': movies tagged with every selected genre. 'any': movies tagged with at
-// least one. No selection keeps every movie.
 export function filterByGenres(
   movies: Movie[],
   genreIds: number[],

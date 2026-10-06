@@ -5,17 +5,14 @@
 }
 
 .label {
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-muted);
+  composes: label from '../styles/text.module.css';
 }
 
 .anchor {
   position: relative;
 }
 
-/* Same filled style as the direction button. Fixed width, so switching
-   between "Title" and "Release date" doesn't move the controls. */
+/* Fixed width so switching labels doesn't move the controls */
 .button {
   display: flex;
   align-items: center;
@@ -42,12 +39,12 @@
 }
 
 .button:active {
-  transform: scale(0.97);
+  transform: scale(var(--press-scale));
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 .chevron {

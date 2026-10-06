@@ -1,68 +1,52 @@
 :root {
-  /* Three cool grounds. Contrast figures are on bg / surface / raised. */
   --color-bg: #121318;
   --color-surface: #1a1c23;
   --color-surface-raised: #242733;
 
   /* Text */
-  --color-text: #ebe9ec; /* 15.4 / 14.1 / 12.3 */
-  --color-text-soft: #cfcdd4; /* 11.8 / 10.8 / 9.4 */
-  --color-text-dim: #b4b2bc; /* 8.9 / 8.1 / 7.1 */
-  --color-muted: #9c9aa5; /* 6.7 / 6.1 / 5.4 */
+  --color-text: #ebe9ec;
+  --color-text-soft: #cfcdd4;
+  --color-text-dim: #b4b2bc;
+  --color-muted: #9c9aa5;
 
-  /* Velvet wine, the only accent. Never as text on the tint. */
-  --color-accent: #c97f8c; /* 6.1 / 5.6 / 4.9 */
+  /* Never use the accent as text on its tint */
+  --color-accent: #c97f8c;
   --color-accent-tint: rgba(201, 127, 140, 0.14);
-  --color-accent-soft: rgba(201, 127, 140, 0.6); /* selected chip/segment border */
-  --color-field-border: #757888; /* 4.2 / 3.9 / 3.4, text inputs only */
-  --color-error: #f08a85; /* 7.7 / 7.0 / 6.1 */
+  --color-accent-soft: rgba(201, 127, 140, 0.6);
+  /* Text inputs only */
+  --color-field-border: #757888;
+  --color-error: #f08a85;
 
   /* Decorative only, never an input's only edge */
   --color-line: #2c2f3a;
-  --color-line-soft: rgba(44, 47, 58, 0.75); /* softer line, button edges */
+  --color-line-soft: rgba(44, 47, 58, 0.75);
 
   /* Translucent */
   --color-nav-bg: rgba(18, 19, 24, 0.88);
   --color-scrim-top: rgba(18, 19, 24, 0.45);
   --color-scrim-bottom: rgba(18, 19, 24, 0.7);
   --color-scrim-text-shadow: rgba(18, 19, 24, 0.75);
-  --color-scrim-side: rgba(18, 19, 24, 0.55); /* left edge of the hero */
+  --color-scrim-side: rgba(18, 19, 24, 0.55);
   --color-scrim-clear: rgba(18, 19, 24, 0);
-  --color-glass: rgba(18, 19, 24, 0.3); /* see-through button on images */
-  /* Masks, where only the alpha matters. --mask-fade-out eases from solid
-     to clear along a cosine curve (flat at both ends, 16 stops), so a fade
-     has no visible kinks or bands. */
+  --color-glass: rgba(18, 19, 24, 0.3);
+  --blur-glass: 0.5rem;
   --mask-solid: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 1));
+  /* Cosine curve so the fade has no hard edge */
   --mask-fade-out: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1.000) 0.0%,
-    rgba(0, 0, 0, 0.989) 6.7%,
-    rgba(0, 0, 0, 0.957) 13.3%,
-    rgba(0, 0, 0, 0.905) 20.0%,
-    rgba(0, 0, 0, 0.835) 26.7%,
-    rgba(0, 0, 0, 0.750) 33.3%,
-    rgba(0, 0, 0, 0.655) 40.0%,
-    rgba(0, 0, 0, 0.552) 46.7%,
-    rgba(0, 0, 0, 0.448) 53.3%,
-    rgba(0, 0, 0, 0.345) 60.0%,
-    rgba(0, 0, 0, 0.250) 66.7%,
-    rgba(0, 0, 0, 0.165) 73.3%,
-    rgba(0, 0, 0, 0.095) 80.0%,
-    rgba(0, 0, 0, 0.043) 86.7%,
-    rgba(0, 0, 0, 0.011) 93.3%,
-    rgba(0, 0, 0, 0.000) 100.0%
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.854) 25%,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(0, 0, 0, 0.146) 75%,
+    rgba(0, 0, 0, 0) 100%
   );
-  --mask-100: rgba(0, 0, 0, 1);
-  --mask-0: rgba(0, 0, 0, 0);
-  /* Fine grey grain that dithers long dark fades, breaking up 8-bit steps */
-  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   --color-glass-hover: rgba(18, 19, 24, 0.5);
 
   /* Type */
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-sans: 'Schibsted Grotesk', system-ui, sans-serif;
-  --text-label: 0.85rem; /* labels, meta, counts */
-  --text-control: 0.95rem; /* buttons, nav links */
+  --text-label: 0.85rem;
+  --text-control: 0.95rem;
+  --leading-body: 1.5;
 
   /* Shape and spacing */
   --space-1: 0.5rem;
@@ -74,6 +58,9 @@
   --radius-small: 4px;
   --radius-large: 8px;
   --control-height: 2.75rem;
+  --chip-height: 2rem;
+  --focus-ring: 2px solid var(--color-accent);
+  --focus-offset: 3px;
   --page-width: 72rem;
   --page-gutter: clamp(1rem, 5vw, 4rem);
   --header-height: 4rem;
@@ -82,10 +69,10 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --duration-hover: 180ms;
   --duration-press: 100ms;
+  --duration-enter: 260ms;
+  --press-scale: 0.97;
 
   color-scheme: dark;
-  /* No rubber-band bounce past the top or bottom, which would drag the
-     header and page edges along with it */
   overscroll-behavior: none;
 }
 

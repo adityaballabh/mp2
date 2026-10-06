@@ -1,3 +1,5 @@
+import clsx from 'clsx'
+import { useId } from 'react'
 import type { Genre } from '../types/movie'
 import type { GenreMatch } from '../utils/movieQuery'
 import styles from './GenreFilter.module.css'
@@ -24,19 +26,21 @@ function GenreFilter({
   onClear,
   onMatchChange,
 }: GenreFilterProps) {
-  // Three rows that GalleryView lays out: the label, the chips, then the
-  // All / Any switch with Clear
+  const filterLabelId = useId()
+  const matchLabelId = useId()
+
+  // Three rows for GalleryView to lay out
   return (
     <>
       <div className={styles.header}>
-        <span id="genre-filter-label" className={styles.label}>
+        <span id={filterLabelId} className={styles.label}>
           Genres
         </span>
       </div>
       <div
         className={styles.filter}
         role="group"
-        aria-labelledby="genre-filter-label"
+        aria-labelledby={filterLabelId}
       >
         {genres.map((genre) => {
           const isSelected = selected.includes(genre.id)
@@ -44,9 +48,7 @@ function GenreFilter({
             <button
               key={genre.id}
               type="button"
-              className={
-                isSelected ? `${styles.chip} ${styles.selected}` : styles.chip
-              }
+              className={clsx(styles.chip, isSelected && styles.selected)}
               aria-pressed={isSelected}
               onClick={() => onToggle(genre.id)}
             >
@@ -56,23 +58,22 @@ function GenreFilter({
         })}
       </div>
       <div className={styles.match}>
-        <span id="genre-match-label" className={styles.label}>
+        <span id={matchLabelId} className={styles.label}>
           Match
         </span>
         <div
           className={styles.segmented}
           role="group"
-          aria-labelledby="genre-match-label"
+          aria-labelledby={matchLabelId}
         >
           {MATCH_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
-              className={
-                option.value === match
-                  ? `${styles.segment} ${styles.segmentActive}`
-                  : styles.segment
-              }
+              className={clsx(
+                styles.segment,
+                option.value === match && styles.segmentActive,
+              )}
               aria-pressed={option.value === match}
               onClick={() => onMatchChange(option.value)}
             >
@@ -80,15 +81,10 @@ function GenreFilter({
             </button>
           ))}
         </div>
-        {/* Always rendered and only hidden, so it doesn't shift anything in
-            and out. visibility: hidden also drops it from the tab order. */}
+        {/* Hidden instead of removed so nothing shifts */}
         <button
           type="button"
-          className={
-            selected.length > 0
-              ? styles.clear
-              : `${styles.clear} ${styles.hidden}`
-          }
+          className={clsx(styles.clear, selected.length === 0 && styles.hidden)}
           onClick={onClear}
         >
           Clear

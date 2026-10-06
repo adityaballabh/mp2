@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { SORT_OPTIONS } from '../utils/movieQuery'
@@ -9,9 +10,7 @@ interface SortMenuProps {
   onChange: (key: SortKey) => void
 }
 
-// A listbox in place of <select>, so the menu matches the other controls.
-// Follows the WAI-ARIA "select-only combobox" keyboard pattern: arrows move,
-// Enter/Space picks, Escape closes, and focus returns to the button.
+// Custom listbox to match the other controls, with select-only combobox keys
 function SortMenu({ value, onChange }: SortMenuProps) {
   const id = useId()
   const labelId = `${id}-label`
@@ -46,7 +45,6 @@ function SortMenu({ value, onChange }: SortMenuProps) {
     if (open) listRef.current?.focus()
   }, [open])
 
-  // Clicking anywhere outside closes it
   useEffect(() => {
     if (!open) return
     function handlePointer(event: PointerEvent) {
@@ -86,7 +84,7 @@ function SortMenu({ value, onChange }: SortMenuProps) {
         close(true)
         break
       case 'Tab':
-        // Let focus move on naturally
+        // Return before preventDefault so Tab still moves focus
         setOpen(false)
         return
       default:
@@ -104,7 +102,7 @@ function SortMenu({ value, onChange }: SortMenuProps) {
         <button
           ref={buttonRef}
           type="button"
-          className={open ? `${styles.button} ${styles.open}` : styles.button}
+          className={clsx(styles.button, open && styles.open)}
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls={open ? listId : undefined}
@@ -135,24 +133,23 @@ function SortMenu({ value, onChange }: SortMenuProps) {
           >
             {SORT_OPTIONS.map((option, index) => {
               const selected = index === selectedIndex
-              let className = styles.option
-              if (index === activeIndex) className += ` ${styles.active}`
               return (
                 <li
                   key={option.key}
                   id={optionId(index)}
-                  className={className}
+                  className={clsx(
+                    styles.option,
+                    index === activeIndex && styles.active,
+                  )}
                   role="option"
                   aria-selected={selected}
                   onPointerEnter={() => setActiveIndex(index)}
                   onClick={() => choose(index)}
                 >
                   {option.label}
-                  {/* Hidden rather than removed, so every row is as wide */}
+                  {/* Hidden instead of removed so every row is as wide */}
                   <svg
-                    className={
-                      selected ? styles.check : `${styles.check} ${styles.hidden}`
-                    }
+                    className={clsx(styles.check, !selected && styles.hidden)}
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                     focusable="false"

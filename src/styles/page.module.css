@@ -1,24 +1,23 @@
-/* Shared by the page modules through `composes` */
-
 .page {
   width: min(100% - 2 * var(--page-gutter), var(--page-width));
   margin: 0 auto;
 }
 
+.rise {
+  animation: rise var(--duration-enter) var(--ease-out) both;
+}
+
 .heading {
+  composes: rise;
   margin: var(--space-4) 0 var(--space-3);
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.1;
-  animation: rise 260ms var(--ease-out) both;
 }
 
 .count {
+  composes: label from './text.module.css';
   margin: var(--space-3) 0 var(--space-2);
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--color-muted);
+  line-height: var(--leading-body);
 }
 
 .status {

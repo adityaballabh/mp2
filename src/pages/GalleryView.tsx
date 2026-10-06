@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
 import GenreFilter from '../components/GenreFilter'
+import PageStatus from '../components/PageStatus'
 import PosterCard from '../components/PosterCard'
+import { useDetailNavState } from '../hooks/useDetailNavState'
 import { useIncrementalReveal } from '../hooks/useIncrementalReveal'
-import { useTopRatedMovies } from '../hooks/useTopRatedMovies'
+import { useTopRatedAndGenres } from '../hooks/useTopRatedAndGenres'
+import { useUrlParams } from '../hooks/useUrlParams'
 import type { Genre } from '../types/movie'
-import type { DetailNavState } from '../utils/detailNav'
 import { filterByGenres } from '../utils/movieQuery'
 import type { GenreMatch } from '../utils/movieQuery'
 import styles from './GalleryView.module.css'
@@ -23,28 +24,16 @@ function parseGenreIds(value: string | null): number[] {
 }
 
 function GalleryView() {
-  const { movies, genres, loading, error } = useTopRatedMovies()
+  const { movies, genres, loading, error } = useTopRatedAndGenres()
 
-  // Filters live in the URL (?genres=&match=), like the list
-  // view's search and sort
-  const [searchParams, setSearchParams] = useSearchParams()
-  const selected = parseGenreIds(searchParams.get('genres'))
+  // Keep filters in the URL like the list view
+  const { searchParams, setParam } = useUrlParams()
+  const genresParam = searchParams.get('genres') ?? ''
+  const selected = useMemo(() => parseGenreIds(genresParam), [genresParam])
   const match: GenreMatch = searchParams.get('match') === 'any' ? 'any' : 'all'
 
-  function updateParam(name: string, value: string, fallback: string) {
-    setSearchParams(
-      (params) => {
-        if (value === fallback) params.delete(name)
-        else params.set(name, value)
-        return params
-      },
-      // Replace, so filter tweaks don't pile up in the back history
-      { replace: true },
-    )
-  }
-
   function setSelected(ids: number[]) {
-    updateParam('genres', ids.join(','), '')
+    setParam('genres', ids.join(','), '')
   }
 
   function toggleGenre(id: number) {
@@ -65,43 +54,23 @@ function GalleryView() {
     return options.sort((a, b) => a.name.localeCompare(b.name))
   }, [movies, genres])
 
-  const selectedKey = selected.join(',')
   const results = useMemo(
-    () => filterByGenres(movies, parseGenreIds(selectedKey), match),
-    [movies, selectedKey, match],
+    () => filterByGenres(movies, selected, match),
+    [movies, selected, match],
   )
 
-  // Handed to the detail page so previous/next follow these exact results
-  const location = useLocation()
-  const navState: DetailNavState = useMemo(
-    () => ({
-      ids: results.map((movie) => movie.id),
-      backTo: location.pathname + location.search,
-      backLabel: 'Gallery',
-    }),
-    [results, location.pathname, location.search],
-  )
+  const navState = useDetailNavState(results, 'Gallery')
 
   const { visibleCount, sentinelRef, hasMore } = useIncrementalReveal(
     results.length,
-    `${selectedKey}|${match}`,
+    `${genresParam}|${match}`,
     BATCH_SIZE,
   )
 
-  if (loading)
-    return (
-      <main className={styles.page}>
-        <p className={styles.status}>Loading movies…</p>
-      </main>
-    )
-  if (error)
-    return (
-      <main className={styles.page}>
-        <p className={styles.status}>Couldn’t load movies: {error}</p>
-      </main>
-    )
+  if (loading) return <PageStatus>Loading movies…</PageStatus>
+  if (error) return <PageStatus>Couldn’t load movies: {error}</PageStatus>
 
-    return (
+  return (
     <main className={styles.page}>
       <h1 className={styles.heading}>Gallery</h1>
       <section className={styles.filters} aria-label="Filters">
@@ -111,13 +80,13 @@ function GalleryView() {
           match={match}
           onToggle={toggleGenre}
           onClear={() => setSelected([])}
-          onMatchChange={(value) => updateParam('match', value, 'all')}
+          onMatchChange={(value) => setParam('match', value, 'all')}
         />
       </section>
       <p className={styles.count} aria-live="polite">
-        {selected.length > 0
-          ? `${results.length} of ${movies.length} movies`
-          : `${movies.length} movies`}
+        {results.length === movies.length
+          ? `${movies.length} movies`
+          : `${results.length} of ${movies.length} movies`}
       </p>
       {results.length === 0 ? (
         <p className={styles.status}>No movies match these filters.</p>

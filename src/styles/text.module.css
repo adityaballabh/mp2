@@ -1,0 +1,11 @@
+.label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.labelSoft {
+  composes: label;
+  color: var(--color-text-soft);
+}

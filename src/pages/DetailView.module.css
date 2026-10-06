@@ -6,167 +6,26 @@
   composes: status from '../styles/page.module.css';
 }
 
-/* Hero: full-width backdrop under the scrim, text only ever on the scrim.
-   A glow of the backdrop's colours sits behind it and runs down the page
-   to the footer. */
-
 .main {
   position: relative;
-  /* On short pages the glow would run past the footer and make the page
-     taller; clip cuts it off here without making a scroll container */
+  /* Clip the glow so short pages don't grow past the footer */
   overflow: clip;
-  /* Reach over the footer's top margin, so the glow runs right up to the
-     footer instead of leaving a plain dark band above it */
+  /* Reach over the footer's margin so the glow meets the footer */
   margin-bottom: calc(-1 * var(--space-5));
   padding-bottom: var(--space-5);
-  --hero-height: clamp(26rem, 62vh, 38rem);
-  /* The backdrop fades out over this distance */
-  --fade-distance: 22rem;
-  /* The glow keeps its full colour down to the footer's edge */
-  --glow-fade: 0rem;
 }
 
-/* An element that's solid down to its last --fade-distance, then eases out
-   along the cosine curve. Two mask layers: solid on top, the eased fade
-   pinned to the bottom (overlapping by 1px so no hairline shows between
-   them). The -webkit- copies are for Safari before 15.4. */
-.glow,
-.backdrop,
-.hero::after {
-  -webkit-mask-image: var(--mask-solid), var(--mask-fade-out);
-  mask-image: var(--mask-solid), var(--mask-fade-out);
-  -webkit-mask-size:
-    100% calc(100% - var(--fade-distance) + 1px),
-    100% var(--fade-distance);
-  mask-size:
-    100% calc(100% - var(--fade-distance) + 1px),
-    100% var(--fade-distance);
-  -webkit-mask-position:
-    0 0,
-    0 100%;
-  mask-position:
-    0 0,
-    0 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-}
-
-/* Runs the full height of the page content, so the colour carries all the
-   way down to the footer (fading over --glow-fade, currently none) */
-.glow {
-  --fade-distance: var(--glow-fade);
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* Well past the page's edges on every side, so after the blur the colour
-   still reaches the full width with no soft fall-off at the sides */
-.glowImage {
-  position: absolute;
-  inset: -30%;
-  width: 160%;
-  /* The global img max-width: 100% would cap the width and shift the
-     glow left */
-  max-width: none;
-  height: 160%;
-  object-fit: cover;
-  filter: blur(5rem) saturate(1.4);
-  opacity: 0.5;
-}
-
-.hero {
-  position: relative;
-  overflow: hidden;
-}
-
-/* No backdrop: a plain surface, same layout */
-.plain {
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-line);
-}
-
-.backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 25%;
-}
-
-/* A dark wash from the left behind the poster and text, so they read on
-   any backdrop, over a light top-to-bottom one */
-.hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      var(--color-scrim-side),
-      var(--color-scrim-clear) 60%
-    ),
-    linear-gradient(
-      to bottom,
-      var(--color-scrim-top),
-      var(--color-scrim-bottom)
-    );
-}
-
-/* Faint grain over both fades, dithering away any leftover banding. Overlay
-   blending keeps the average brightness unchanged. Fades in and out at its
-   own edges so it never shows a line. Sits above the hero's images but
-   below its text, like the page content. */
-.grain {
-  position: absolute;
-  top: calc(var(--hero-height) - var(--fade-distance));
-  right: 0;
-  bottom: 0;
-  left: 0;
-  pointer-events: none;
-  background-image: var(--texture-grain);
-  mix-blend-mode: overlay;
-  opacity: 0.08;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    var(--mask-0),
-    var(--mask-100) 25%,
-    var(--mask-100) 60%,
-    var(--mask-0)
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    var(--mask-0),
-    var(--mask-100) 25%,
-    var(--mask-100) 60%,
-    var(--mask-0)
-  );
-}
-
-/* Page content below the hero sits above the glow */
 .aboveGlow {
   position: relative;
   z-index: 1;
 }
 
-.heroInner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-height: var(--hero-height);
-  padding: var(--space-3) 0 var(--space-4);
-}
-
-/* A small see-through dark button, so it stays legible on bright backdrops */
+/* See-through dark so it stays legible on bright backdrops */
 .back {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  min-height: 2rem;
+  min-height: var(--chip-height);
   padding: 0 var(--space-2);
   font-family: var(--font-sans);
   font-size: var(--text-control);
@@ -174,7 +33,7 @@
   color: var(--color-text);
   text-decoration: none;
   background: var(--color-glass);
-  backdrop-filter: blur(0.5rem);
+  backdrop-filter: blur(var(--blur-glass));
   border-radius: var(--radius-small);
   transition:
     background-color var(--duration-hover) var(--ease-out),
@@ -186,98 +45,11 @@
 }
 
 .back:active {
-  transform: scale(0.97);
+  transform: scale(var(--press-scale));
 }
 
 .bareBack {
   padding-top: var(--space-3);
-}
-
-.heroBody {
-  display: grid;
-  grid-template-columns: clamp(9rem, 18vw, 15rem) minmax(0, 1fr);
-  align-items: end;
-  gap: var(--space-4);
-  margin-top: auto;
-}
-
-.poster {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 2 / 3;
-  object-fit: cover;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-large);
-}
-
-.missingPoster {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  color: var(--color-text-dim);
-}
-
-.heading {
-  min-width: 0;
-  text-shadow: 0 1px 0.75rem var(--color-scrim-text-shadow);
-}
-
-.meta {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-text-soft);
-}
-
-.title {
-  margin: var(--space-1) 0 0;
-  font-size: clamp(2.4rem, 5vw, 4rem);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  animation: rise 260ms var(--ease-out) both;
-}
-
-.tagline {
-  margin: var(--space-2) 0 0;
-  max-width: 50ch;
-  font-size: 1.15rem;
-  font-style: italic;
-  line-height: 1.5;
-  min-height: 1.5em; /* one line, held even when empty */
-  color: var(--color-text-soft);
-}
-
-.score {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-1);
-  margin: var(--space-3) 0 0;
-}
-
-.star {
-  font-size: 1.5rem;
-  color: var(--color-accent);
-}
-
-.rating {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 500;
-  line-height: 1;
-  color: var(--color-text);
-}
-
-.votes {
-  margin-left: var(--space-1);
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-text-soft);
 }
 
 /* Previous / next */
@@ -298,9 +70,8 @@
   font-size: var(--text-control);
   font-weight: 500;
   color: var(--color-text);
-  /* Same see-through dark as the back link and footer */
   background: var(--color-glass);
-  backdrop-filter: blur(0.5rem);
+  backdrop-filter: blur(var(--blur-glass));
   /* Faint edge so the shape holds up over the tinted glow */
   border: 1px solid var(--color-line-soft);
   border-radius: var(--radius-small);
@@ -315,16 +86,15 @@
 }
 
 .step:active:enabled {
-  transform: scale(0.97);
+  transform: scale(var(--press-scale));
 }
 
-/* Only one result: still there, but clearly inactive */
+/* Shown but inactive when there's only one result */
 .step:disabled {
   color: var(--color-muted);
   cursor: not-allowed;
 }
 
-/* In the title font, like the rating, since it's a number that matters */
 .position {
   font-family: var(--font-display);
   font-size: var(--text-label);
@@ -333,93 +103,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Overview and facts */
-
-.details {
-  display: grid;
-  /* Wider facts column, so its two columns have room */
-  grid-template-columns: minmax(0, 3fr) minmax(20rem, 2fr);
-  align-items: start;
-  /* Wide column gap: with no divider, space separates the facts */
-  gap: var(--space-4) var(--space-6);
-  margin-top: var(--space-4);
-}
-
-.sectionHeading {
-  margin: 0 0 var(--space-2);
-  font-size: 1.75rem;
-  line-height: 1.2;
-}
-
-.overview {
-  margin: 0;
-  max-width: 70ch;
-  color: var(--color-text-soft);
-}
-
-/* Pairs in two side-by-side columns, label above value; rows are spaced
-   wider than key to value */
-.facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-}
-
-.fact dt {
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-muted);
-}
-
-.fact dd {
-  margin: 0;
-  line-height: 1.5;
-  color: var(--color-text-soft);
-}
-
-.factLink {
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-accent);
-  text-underline-offset: 0.25em;
-}
-
-.factLink:hover {
-  color: var(--color-text);
-}
-
 .back:focus-visible,
-.step:focus-visible,
-.factLink:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+.step:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
   border-radius: var(--radius-small);
 }
 
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-}
-
-@media (max-width: 52rem) {
-  .details {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 @media (max-width: 40rem) {
-  .heroBody {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .poster {
-    width: 9rem;
-  }
-
   .step {
     min-width: var(--control-height);
   }

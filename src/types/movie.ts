@@ -1,9 +1,9 @@
-// Shape of a movie in TMDB list responses (/movie/top_rated, /discover/movie, /search/movie)
 export interface Movie {
   id: number
   title: string
   overview: string
-  release_date: string // "YYYY-MM-DD", can be "" for unreleased titles
+  // Empty for unreleased titles
+  release_date: string
   poster_path: string | null
   backdrop_path: string | null
   genre_ids: number[]
@@ -24,16 +24,17 @@ export interface Genre {
   name: string
 }
 
-// Full record from /movie/{id}. It has `genres` objects in place of the
-// list responses' `genre_ids`, plus fields the lists leave out. Only the
-// fields the detail view uses are declared.
+// Detail record, with genre objects in place of ids
 export interface MovieDetails extends Omit<Movie, 'genre_ids'> {
   genres: Genre[]
   tagline: string
-  runtime: number | null // minutes
-  budget: number // USD, 0 when unknown
-  revenue: number // USD, 0 when unknown
+  // In minutes
+  runtime: number | null
+  // Budget and revenue are in USD, 0 when unknown
+  budget: number
+  revenue: number
   imdb_id: string | null
   original_title: string
-  directors: string[] // names, picked out of the credits before caching
+  // Picked out of the credits before caching
+  directors: string[]
 }

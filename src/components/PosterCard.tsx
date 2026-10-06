@@ -1,10 +1,8 @@
-import { Link } from 'react-router-dom'
+import clsx from 'clsx'
 import { posterUrl } from '../api/tmdb'
 import type { Movie } from '../types/movie'
-import { usePrefetchOnView } from '../hooks/usePrefetchOnView'
-import { detailPath } from '../utils/detailNav'
 import type { DetailNavState } from '../utils/detailNav'
-import { preloadHeroImages } from '../utils/prefetch'
+import MovieLink from './MovieLink'
 import styles from './PosterCard.module.css'
 
 interface PosterCardProps {
@@ -13,19 +11,9 @@ interface PosterCardProps {
 }
 
 function PosterCard({ movie, navState }: PosterCardProps) {
-  // Same warm-up as MovieRow: details on view, hero images on hover or focus
-  const ref = usePrefetchOnView<HTMLAnchorElement>(movie.id)
-
   return (
     <li className={styles.card}>
-      <Link
-        ref={ref}
-        to={detailPath(movie.id)}
-        state={navState}
-        className={styles.link}
-        onPointerEnter={() => preloadHeroImages(movie)}
-        onFocus={() => preloadHeroImages(movie)}
-      >
+      <MovieLink movie={movie} navState={navState} className={styles.link}>
         {movie.poster_path ? (
           <img
             className={styles.poster}
@@ -36,12 +24,12 @@ function PosterCard({ movie, navState }: PosterCardProps) {
             height={513}
           />
         ) : (
-          <div className={`${styles.poster} ${styles.missing}`}>
+          <div className={clsx(styles.poster, styles.missing)}>
             {movie.title}
           </div>
         )}
         <p className={styles.title}>{movie.title}</p>
-      </Link>
+      </MovieLink>
     </li>
   )
 }

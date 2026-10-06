@@ -10,10 +10,7 @@
 }
 
 .label {
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 500;
-  color: var(--color-muted);
+  composes: label from '../styles/text.module.css';
 }
 
 .filter {
@@ -22,11 +19,10 @@
   gap: var(--space-1);
 }
 
-/* Genre chips and the All / Any segments: rounded pills */
 .chip,
 .segment {
-  min-height: 2rem; /* 32px */
-  padding: 0 0.625rem; /* 10px */
+  min-height: var(--chip-height);
+  padding: 0 0.625rem;
   font-family: var(--font-sans);
   font-size: var(--text-control);
   font-weight: 500;
@@ -54,10 +50,10 @@
 .chip:active,
 .segment:active,
 .clear:active {
-  transform: scale(0.97);
+  transform: scale(var(--press-scale));
 }
 
-/* Selected: tint and wine border, text stays light (never wine on tint) */
+/* Light text on the tint since wine on tint fails contrast */
 .selected,
 .selected:hover,
 .segmentActive,
@@ -67,9 +63,9 @@
   border-color: var(--color-accent-soft);
 }
 
-/* After All / Any, styled like the switch's unselected side */
+/* Styled like the switch's unselected side */
 .clear {
-  min-height: 2rem; /* same height as the switch track */
+  min-height: var(--chip-height);
   margin-left: var(--space-1);
   padding: 0 var(--space-2);
   font-family: var(--font-sans);
@@ -102,8 +98,7 @@
   margin-top: var(--space-1);
 }
 
-/* All / Any as one control: a single track holding both segments, squarer
-   than the genre pills so it reads as a switch rather than more chips */
+/* Squarer than the genre pills so it reads as a switch */
 .segmented {
   display: inline-flex;
   padding: 2px;
@@ -112,7 +107,7 @@
 }
 
 .segment {
-  min-height: calc(2rem - 4px);
+  min-height: calc(var(--chip-height) - 4px);
   padding: 0 var(--space-2);
   background: transparent;
   border-radius: var(--radius-small);
@@ -121,6 +116,6 @@
 .chip:focus-visible,
 .clear:focus-visible,
 .segment:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }

@@ -1,56 +1,34 @@
 import { useMemo } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
 import ListControls from '../components/ListControls'
 import MovieRow from '../components/MovieRow'
+import PageStatus from '../components/PageStatus'
+import { useDetailNavState } from '../hooks/useDetailNavState'
 import { useIncrementalReveal } from '../hooks/useIncrementalReveal'
-import { useTopRatedMovies } from '../hooks/useTopRatedMovies'
-import type { DetailNavState } from '../utils/detailNav'
+import { useTopRatedAndGenres } from '../hooks/useTopRatedAndGenres'
+import { useUrlParams } from '../hooks/useUrlParams'
 import { filterByTitle, isSortKey, sortMovies } from '../utils/movieQuery'
 import type { SortKey, SortOrder } from '../utils/movieQuery'
 import styles from './ListView.module.css'
 
-// Rows are rendered in batches as the user scrolls, so the first paint only
-// builds (and fetches posters for) a screenful instead of all ~500 rows.
+// Render rows in batches so the first paint builds only a screenful
 const BATCH_SIZE = 20
 
 function ListView() {
-  const { movies, genres, loading, error } = useTopRatedMovies()
+  const { movies, genres, loading, error } = useTopRatedAndGenres()
 
-  // Search and sort live in the URL (?q=&sort=&order=), so they survive a
-  // refresh and are restored when coming back from another page.
-  const [searchParams, setSearchParams] = useSearchParams()
+  // Keep search and sort in the URL so they survive a refresh and coming back
+  const { searchParams, setParam } = useUrlParams()
   const query = searchParams.get('q') ?? ''
   const sortParam = searchParams.get('sort')
   const sortKey: SortKey = isSortKey(sortParam) ? sortParam : 'rating'
   const order: SortOrder = searchParams.get('order') === 'asc' ? 'asc' : 'desc'
-
-  function updateParam(name: string, value: string, fallback: string) {
-    setSearchParams(
-      (params) => {
-        if (value === fallback) params.delete(name)
-        else params.set(name, value)
-        return params
-      },
-      // Replace, so typing doesn't add a history entry per keystroke
-      { replace: true },
-    )
-  }
 
   const results = useMemo(
     () => sortMovies(filterByTitle(movies, query), sortKey, order),
     [movies, query, sortKey, order],
   )
 
-  // Handed to the detail page so previous/next follow these exact results
-  const location = useLocation()
-  const navState: DetailNavState = useMemo(
-    () => ({
-      ids: results.map((movie) => movie.id),
-      backTo: location.pathname + location.search,
-      backLabel: 'List',
-    }),
-    [results, location.pathname, location.search],
-  )
+  const navState = useDetailNavState(results, 'List')
 
   const { visibleCount, sentinelRef, hasMore } = useIncrementalReveal(
     results.length,
@@ -58,18 +36,8 @@ function ListView() {
     BATCH_SIZE,
   )
 
-  if (loading)
-    return (
-      <main className={styles.page}>
-        <p className={styles.status}>Loading movies…</p>
-      </main>
-    )
-  if (error)
-    return (
-      <main className={styles.page}>
-        <p className={styles.status}>Couldn’t load movies: {error}</p>
-      </main>
-    )
+  if (loading) return <PageStatus>Loading movies…</PageStatus>
+  if (error) return <PageStatus>Couldn’t load movies: {error}</PageStatus>
 
   return (
     <main className={styles.page}>
@@ -78,9 +46,9 @@ function ListView() {
         query={query}
         sortKey={sortKey}
         order={order}
-        onQueryChange={(value) => updateParam('q', value, '')}
-        onSortKeyChange={(value) => updateParam('sort', value, 'rating')}
-        onOrderChange={(value) => updateParam('order', value, 'desc')}
+        onQueryChange={(value) => setParam('q', value, '')}
+        onSortKeyChange={(value) => setParam('sort', value, 'rating')}
+        onOrderChange={(value) => setParam('order', value, 'desc')}
       />
       <p className={styles.count} aria-live="polite">
         {results.length === movies.length

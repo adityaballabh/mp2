@@ -2,6 +2,11 @@ import type { SortKey, SortOrder } from '../utils/movieQuery'
 import SortMenu from './SortMenu'
 import styles from './ListControls.module.css'
 
+const ORDER_NAMES: Record<SortOrder, string> = {
+  asc: 'ascending',
+  desc: 'descending',
+}
+
 interface ListControlsProps {
   query: string
   sortKey: SortKey
@@ -47,7 +52,7 @@ function ListControls({
         className={styles.order}
         type="button"
         onClick={() => onOrderChange(nextOrder)}
-        aria-label={`Sorted ${order === 'asc' ? 'ascending' : 'descending'}. Switch to ${nextOrder === 'asc' ? 'ascending' : 'descending'}`}
+        aria-label={`Sorted ${ORDER_NAMES[order]}. Switch to ${ORDER_NAMES[nextOrder]}`}
       >
         {order === 'asc' ? '↑ Ascending' : '↓ Descending'}
       </button>
